@@ -33,12 +33,12 @@ int main(int argc, char* argv[]) {
 		return FUNCTION_FAILED;
 	}
 
-	queue_tasks=create_queue_tasks(tasks_file);
+	queue_tasks=create_queue_tasks(tasks_file);//crearte new queue and insert to it the priority offsets from file 
 	if (queue_tasks == NULL) {
 		return FUNCTION_FAILED;
 	}
 	PrintQueue(queue_tasks);
-	DestroyQueue(queue_tasks);
+	DestroyQueue(queue_tasks);//release all the memory that allocates for the queue
 	fclose(tasks_file);//check if the file valid and close file
 	return 0;
 }
