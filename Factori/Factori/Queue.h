@@ -15,7 +15,6 @@
 
 #define FUNCTION_FAILED -1
 
-
 // Structs --------------------------------------------------------------------
 
 /*this struct defiend the nodes for the  queue*/
@@ -65,5 +64,9 @@ void DestroyQueue(QUEUE* queue);
 //input: int offset that will be in the new node
 //if succeed it return pointer to new node, otherwise it return NULL
 Node* CreateNode(int offset);
+
+//prints all the queues offset in their priority
+//input: pointer to QUEUE you want to print
+void PrintQueue(QUEUE* queue);
 #endif 
 #pragma once
