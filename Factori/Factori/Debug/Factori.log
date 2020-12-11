@@ -1,4 +1,3 @@
 ﻿  main.c
-  Queue.c
-  Generating Code...
-  Factori.vcxproj -> C:\Users\Surface\source\repos\danielashabat\Factori\Factori\Debug\Factori.exe
+C:\Users\Anat\source\repos\Factori\Factori\Factori\main.c(32,35): warning C4013: 'find_prime_factors' undefined; assuming extern returning int
+  Factori.vcxproj -> C:\Users\Anat\source\repos\Factori\Factori\Debug\Factori.exe

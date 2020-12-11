@@ -25,15 +25,15 @@ int main(int argc, char* argv[]) {
 
 	QUEUE* queue_tasks = NULL;
 	FILE* tasks_file = NULL;
-
+	BOOL pass_or_fail = FALSE;
 	int num = 24; 
-	int counter_num_of_factors;
-	int* prime_factor_array;
-	find_prime_factors(num, &counter_num_of_factors,&prime_factor_array);
-	for (int i = 0; i < counter_num_of_factors, i++) {
-		printf("%d\n", prime_factor_array[i])
+	int counter_num_of_factors = 0;
+	int* prime_factor_array = NULL;
+	pass_or_fail = find_prime_factors(num, &prime_factor_array ,&counter_num_of_factors);
+	for (int i = 0; i < counter_num_of_factors; i++) {
+		printf("%d\n", prime_factor_array[i]);
 	}
-	free(prime_factor_array)
+	free(prime_factor_array);
 	errno_t err = fopen_s(&tasks_file,argv[1], "r");
 	if (err || tasks_file == NULL) {
 		printf("ERROR: failed to open the'Tasks Priorities' file");
@@ -63,31 +63,35 @@ QUEUE* create_queue_tasks(FILE* tasks_file) {
 	return queue_tasks;//return the new queue
 }
 
-BOOL  find_prime_factors(int num , int* prime_factor_array , int** counter_num_of_factors) {
+BOOL  find_prime_factors(int num , int** prime_factor_array , int* counter_num_of_factors) {
 	
 	int i = 3;
-	*counter_num_of_factors = 0;
-	*prime_factor_array = (int*)malloc(sizeof(int));
-	if 
+	int* p_prime_factors = NULL;
+	int counter = 0;
+	p_prime_factors = (int*)malloc(sizeof(int));
+	
 	while (num % 2 == 0) {
-		(*prime_factor_array)[*counter_num_of_factors] = 2;
+		p_prime_factors[counter] = 2;
 		num = (num / 2);
-		(*counter_num_of_factors)++;
-		*prime_factor_array = (int*)realloc(prime_factor_array,counter*sizeof(int))
+		counter++;
+		p_prime_factors = (int*)realloc(p_prime_factors, (counter +1) * sizeof(int));
 	}
 
 	while (i <= sqrt(num)) {
 		while (i % num) {
-			(*prime_factor_array)[*counter_num_of_factors] = i;
-			num = (num/i)
-			(*counter_num_of_factors)++;
-			*prime_factor_array = (int*)realloc(prime_factor_array, counter * sizeof(int))
+			p_prime_factors[counter] = i;
+			num = (num / i);
+			counter++;
+			p_prime_factors = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
 		}
 		i = i + 2;
 	}
 	if (num > 2) {
-		*prime_factor_array[*counter_num_of_factors] = i;
+		(p_prime_factors)[counter] = i;
+		counter++;
 	}
-
+	*counter_num_of_factors = counter;
+	*prime_factor_array = p_prime_factors;
+	return TRUE;
 }
 
