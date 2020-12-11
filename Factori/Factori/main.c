@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
+#include <math.h>
 #include "Queue.h"
 
 // Defines --------------------------------------------------------------------
@@ -55,3 +55,27 @@ QUEUE* create_queue_tasks(FILE* tasks_file) {
 	}
 	return queue_tasks;//return the new queue
 }
+
+BOOL  find_prime_factors(int num , int* prime_factor_array) {
+	
+	int counter = 0;
+	int i = 3;
+	prime_factor_array = (int*)malloc(sizeof(int));
+	while (num % 2 == 0) {
+		prime_factor_array[counter] = 2;
+		num = (num / 2);
+		counter++;
+		prime_factor_array = (int*)realloc(prime_factor_array,counter*sizeof(int))
+	}
+
+	while (i <= sqrt(num)) {
+		while (i % num) {
+			prime_factor_array[counter] = i;
+			num = (num/i)
+			counter++;
+			prime_factor_array = (int*)realloc(prime_factor_array, counter * sizeof(int))
+			
+		}
+	}
+}
+
