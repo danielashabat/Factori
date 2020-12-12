@@ -9,7 +9,7 @@
 // Defines --------------------------------------------------------------------
 
 #define FUNCTION_FAILED -1
-
+#define _CRT_SECURE_NO_WARNINGS
 // Function Declarations -------------------------------------------------------
 
 //this function create a new queue and insert the offsets from the 'Tasks Priorities' file by creating a new nodes
@@ -29,7 +29,11 @@ int main(int argc, char* argv[]) {
 	int num = 24; 
 	int counter_num_of_factors = 0;
 	int* prime_factor_array = NULL;
+	int num_of_digits = get_number_of_digits(num);
 	pass_or_fail = find_prime_factors(num, &prime_factor_array ,&counter_num_of_factors);
+	
+	char* string_to_file =NULL;
+	create_string_to_write(&string_to_file, num, counter_num_of_factors, &prime_factor_array);
 	for (int i = 0; i < counter_num_of_factors; i++) {
 		printf("%d\n", prime_factor_array[i]);
 	}
@@ -95,3 +99,43 @@ BOOL  find_prime_factors(int num , int** prime_factor_array , int* counter_num_o
 	return TRUE;
 }
 
+BOOL create_string_to_write(char** string, int num, int num_of_factors , int** factor_array) {
+	
+	char* str1 = "The prime factors of ";
+	char* str2 = " are:";
+	char** buffer_str_factors = NULL;
+	int num_of_digits = get_number_of_digits(num);
+	char* buffer_str_num = (char*)malloc(sizeof(char)*(num_of_digits + 26));
+	sprintf(buffer_str_num, "The prime factors of %d are:", num);
+	int len_of_string = 27 + num_of_digits + (num_of_factors * 3);
+	*string = (char*)malloc(sizeof(char) * len_of_string);
+	
+	strcpy_s(*string,sizeof(*string), str1);
+	strcpy_s(*string, sizeof(*string), buffer_str_num);
+	strcpy_s(*string, sizeof(*string), str2);
+	free(buffer_str_num);
+	buffer_str_factors = (char**)malloc(sizeof(char*) * num_of_factors);
+	for (int i = 0; i < num_of_factors; i++) {
+		strcpy_s(*string, sizeof(*string), " ");
+		num_of_digits = get_number_of_digits(num);
+		buffer_str_factors[i] = (char*)malloc(sizeof(char) * num_of_digits);
+		sprintf(buffer_str_factors[i], "%d", num);
+		strcpy_s(*string, sizeof(*string), buffer_str_factors[i]);
+		if (i != num_of_factors) {
+			strcpy_s(*string, sizeof(*string), ",");
+		}
+		else {
+			strcpy_s(*string, sizeof(*string), "\n\r");
+		}
+		free(buffer_str_factors[i]);
+	}
+	free(buffer_str_factors);
+}
+
+int get_number_of_digits(num) {
+	int count = 0;
+	while (num != 0) {
+		count++;
+		num = num /= 10;
+	}
+}

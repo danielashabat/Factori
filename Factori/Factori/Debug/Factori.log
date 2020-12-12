@@ -1,3 +1,8 @@
 ﻿  main.c
-C:\Users\Anat\source\repos\Factori\Factori\Factori\main.c(32,35): warning C4013: 'find_prime_factors' undefined; assuming extern returning int
-  Factori.vcxproj -> C:\Users\Anat\source\repos\Factori\Factori\Debug\Factori.exe
+C:\Users\Anat\source\repos\Factori\Factori\Factori\main.c(32,42): warning C4013: 'get_number_of_digits' undefined; assuming extern returning int
+C:\Users\Anat\source\repos\Factori\Factori\Factori\main.c(33,35): warning C4013: 'find_prime_factors' undefined; assuming extern returning int
+C:\Users\Anat\source\repos\Factori\Factori\Factori\main.c(36,24): warning C4013: 'create_string_to_write' undefined; assuming extern returning int
+C:\Users\Anat\source\repos\Factori\Factori\Factori\main.c(109,1): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\stdio.h(1774): message : see declaration of 'sprintf'
+C:\Users\Anat\source\repos\Factori\Factori\Factori\main.c(122,1): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\stdio.h(1774): message : see declaration of 'sprintf'
