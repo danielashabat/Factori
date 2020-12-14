@@ -92,4 +92,5 @@ BOOL read_release(Lock* lock) {
 		return FALSE;
 	}
 	return TRUE;//function succeed
+
 }
