@@ -1,4 +1,4 @@
-
+#define _CRT_SECURE_NO_WARNINGS 
 // Includes --------------------------------------------------------------------
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +9,7 @@
 // Defines --------------------------------------------------------------------
 
 #define FUNCTION_FAILED -1
-#define _CRT_SECURE_NO_WARNINGS 
+
 // Function Declarations -------------------------------------------------------
 
 //this function create a new queue and insert the offsets from the 'Tasks Priorities' file by creating a new nodes

@@ -44,17 +44,17 @@ Lock* InitializeLock() {
 	return lock;//if function succeed return pointer to new lock
 }
 
-BOOL read_lock(Lock* lock) {
+BOOL read_lock(Lock* lock ,int time_out) {
 	DWORD wait_res;
 	BOOL release_res;
-	wait_res = WaitForSingleObject(lock->mutex, TIME_OUT);//lock mutex
+	wait_res = WaitForSingleObject(lock->mutex, time_out);//lock mutex
 	if (wait_res != WAIT_OBJECT_0) {
 		printf("-ERROR: %d - WaitForSingleObject failed !\n", GetLastError());
 		return FALSE;
 	}
 	lock->readers++;//increase the number of readers
 	if (lock->readers == 1) {//if it the first reader
-		wait_res = WaitForSingleObject(lock->semaphore, TIME_OUT);//down to semaphore -> writing operation will be block
+		wait_res = WaitForSingleObject(lock->semaphore, time_out);//down to semaphore -> writing operation will be block
 		if (wait_res != WAIT_OBJECT_0) {
 			printf("-ERROR: %d - WaitForSingleObject failed !\n", GetLastError());
 			return FALSE;
@@ -70,10 +70,10 @@ BOOL read_lock(Lock* lock) {
 }
 
 
-BOOL read_release(Lock* lock) {
+BOOL read_release(Lock* lock , int time_out) {
 	DWORD wait_res;
 	BOOL release_res;
-	wait_res = WaitForSingleObject(lock->mutex, TIME_OUT);//lock mutex
+	wait_res = WaitForSingleObject(lock->mutex, time_out);//lock mutex
 	if (wait_res != WAIT_OBJECT_0) {
 		printf("-ERROR: %d - WaitForSingleObject failed !\n", GetLastError());
 		return FALSE;
@@ -92,5 +92,25 @@ BOOL read_release(Lock* lock) {
 		return FALSE;
 	}
 	return TRUE;//function succeed
+}
 
+BOOL  write_lock(Lock* lock, int time_out) {
+	DWORD wait_res;
+
+	wait_res = WaitForSingleObject(lock->semaphore, time_out);//down to semaphore -> write and read operations are not available for other threads
+	if (wait_res != WAIT_OBJECT_0) {
+		printf("-ERROR: %d - WaitForSingleObject failed !\n", GetLastError());
+		return FALSE;
+	}
+	return TRUE;
+}
+
+BOOL  write_release(Lock* lock, int time_out) {
+	BOOL release_res;
+	release_res = ReleaseSemaphore(lock->semaphore, 1, NULL);//+1 up to semaphore ->write or read operations is now available for other threads
+	if (release_res == FALSE) {
+		printf("-ERROR: %d - release semaphore failed !\n", GetLastError());
+		return FALSE;
+	}
+	return TRUE;
 }
