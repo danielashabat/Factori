@@ -91,9 +91,9 @@ BOOL Empty(QUEUE* queue) {
     return FUNCTION_FAILED;
 }
 
-void DestroyQueue(QUEUE* queue) {
-    if (!Empty(queue)) {//if queue is not empty, release all nodes
-        Node* curr_node = queue->head;
+void DestroyQueue(QUEUE* ptr_queue, QUEUE** double_ptr_queue) {
+    if (!Empty(ptr_queue)) {//if queue is not empty, release all nodes
+        Node* curr_node = ptr_queue->head;
         Node* temp = NULL;
 
         while (curr_node != NULL) {//free all nodes in queue
@@ -102,23 +102,7 @@ void DestroyQueue(QUEUE* queue) {
             free(temp);
         }
     }
-    free(queue);//free queue
-    queue = NULL; //setting queue to NULL 
+    free(ptr_queue);//free queue
+    *double_ptr_queue = NULL; //setting queue pointer to NULL 
 }
 
-void PrintQueue(QUEUE* queue) {
-    if (queue == NULL) {
-        printf("ERROR:queue pointer is not valid!");
-        return;
-    }
-    if (Empty(queue)) {
-        printf("the queue is empty!\n");
-        return;
-    }
-    Node* curr_node = queue->head;
-    printf("the queue contains now:(from first priority to last)\n");
-    while (curr_node!=NULL) {
-        printf("%d\n", curr_node->offset);
-        curr_node = curr_node->next;
-    }
-}

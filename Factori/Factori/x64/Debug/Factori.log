@@ -1,0 +1,8 @@
+﻿  Lock.c
+  main.c
+C:\Users\Surface\Desktop\Daniela\university\Semester_G\system_operates\ex3\Factori\Factori\Factori\main.c(36,42): warning C4013: 'get_number_of_digits' undefined; assuming extern returning int
+C:\Users\Surface\Desktop\Daniela\university\Semester_G\system_operates\ex3\Factori\Factori\Factori\main.c(37,35): warning C4013: 'find_prime_factors' undefined; assuming extern returning int
+C:\Users\Surface\Desktop\Daniela\university\Semester_G\system_operates\ex3\Factori\Factori\Factori\main.c(40,24): warning C4013: 'create_string_to_write' undefined; assuming extern returning int
+C:\Users\Surface\Desktop\Daniela\university\Semester_G\system_operates\ex3\Factori\Factori\Factori\main.c(130,2): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Users\Surface\Desktop\Daniela\university\Semester_G\system_operates\ex3\Factori\Factori\Factori\main.c(143,3): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  Generating Code...

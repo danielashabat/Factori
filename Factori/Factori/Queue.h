@@ -1,5 +1,7 @@
 /*this module includes all the functions and structs that belong to the queue*/
 
+#ifndef	QUEUE_H
+#define	QUEUE_H
 
 // Includes --------------------------------------------------------------------
 #include <stdbool.h>
@@ -10,8 +12,6 @@
 
 
 // Defines --------------------------------------------------------------------
-#ifndef	QUEUE_H
-#define	QUEUE_H
 
 #define FUNCTION_FAILED -1
 
@@ -57,16 +57,16 @@ int Push(QUEUE* queue,//pointer to queue
 BOOL Empty(QUEUE* queue);
 
 //this funtion release all the memory that allocated to the queue including the queue, and setting the the queue pointer to NULL
-/*input: pointer to queue*/
-void DestroyQueue(QUEUE* queue);
+/*inputs: arg1 -pointer to the queue that need to be released
+arg2- pointer to pointer of the same queue
+example for using the function "DestroyQueue(queue_ptr,&queue_ptr)"*/
+void DestroyQueue(QUEUE* ptr_queue, QUEUE** double_ptr_queue);
 
 //this function creats a new node that contain the given offset
 //input: int offset that will be in the new node
 //if succeed it return pointer to new node, otherwise it return NULL
 Node* CreateNode(int offset);
 
-//prints all the queues offset in their priority
-//input: pointer to QUEUE you want to print
-void PrintQueue(QUEUE* queue);
+
 #endif 
 #pragma once

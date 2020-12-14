@@ -9,13 +9,17 @@
 // Defines --------------------------------------------------------------------
 
 #define FUNCTION_FAILED -1
-#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS 
 // Function Declarations -------------------------------------------------------
 
 //this function create a new queue and insert the offsets from the 'Tasks Priorities' file by creating a new nodes
 //return pointer to QUEUE if succeed, otherwise return NULL
 //input: pointer to 'Tasks Priorities' FILE
 QUEUE* create_queue_tasks(FILE* tasks_file);
+
+//prints all the queues offset in their priority
+//input: pointer to QUEUE you want to print
+void PrintQueue(QUEUE* queue);
 
 // Implementation -------------------------------------------------------
 
@@ -49,7 +53,7 @@ int main(int argc, char* argv[]) {
 		return FUNCTION_FAILED;
 	}
 	PrintQueue(queue_tasks);
-	DestroyQueue(queue_tasks);//release all the memory that allocates for the queue
+	DestroyQueue(queue_tasks,&queue_tasks);//release all the memory that allocates for the queue
 	fclose(tasks_file);//check if the file valid and close file
 	return 0;
 }
@@ -65,6 +69,23 @@ QUEUE* create_queue_tasks(FILE* tasks_file) {
 		}
 	}
 	return queue_tasks;//return the new queue
+}
+
+void PrintQueue(QUEUE* queue) {
+	if (queue == NULL) {
+		printf("ERROR:queue pointer is not valid!");
+		return;
+	}
+	if (Empty(queue)) {
+		printf("the queue is empty!\n");
+		return;
+	}
+	Node* curr_node = queue->head;
+	printf("the queue contains now:(from first priority to last)\n");
+	while (curr_node != NULL) {
+		printf("%d\n", curr_node->offset);
+		curr_node = curr_node->next;
+	}
 }
 
 BOOL  find_prime_factors(int num , int** prime_factor_array , int* counter_num_of_factors) {
