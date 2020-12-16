@@ -27,6 +27,7 @@ typedef struct ThreadData {
 	char input_path[MAX_PATH];// the path of the input file
 	QUEUE* task_queue;
 	Lock* lock  ;//the statring point (by bytes) the thread need to decrypte/encrypte 
+	HANDLE queue_mutex;
 } ThreadData;
 
 // Function Declarations -------------------------------------------------------
