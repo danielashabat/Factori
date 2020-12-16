@@ -169,7 +169,7 @@ BOOL create_string_to_write(char** string, int num, int num_of_factors, int** fa
 			strcat(*string, buffer_str_factors);
 		}
 		else {
-			sprintf(buffer_str_factors, " %d\r\n", (*factor_array)[i]);///DANIELA fixed ending
+			sprintf(buffer_str_factors, " %d\r\n", (*factor_array)[i]);
 			strcat(*string, buffer_str_factors);
 		}
 

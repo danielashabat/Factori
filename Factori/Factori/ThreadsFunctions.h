@@ -16,10 +16,6 @@
 #define SUCCSESS TRUE
 #define FAIL FALSE
 
-#define IF_ERROR_FOUND_END_PROGRAM(hfile_tasks,tasks_file_name) if (!check_file_handle(hfile_tasks, tasks_file_name)) {\
-	CloseHandle(hfile_tasks);\
-	return FAIL;}
-
 #define IF_FAILED_END_PROGRAM(result) if (result ==FAIL) {\
 	CloseHandle(hfile_tasks);\
 	return FAIL;}
