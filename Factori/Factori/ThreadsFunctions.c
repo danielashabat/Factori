@@ -1,16 +1,41 @@
 // Includes --------------------------------------------------------------------
 
 #include "ThreadsFunctions.h"
-
-
+#include "Lock.h"
+#include  "Queue.h"
 
 // Implementation -------------------------------------------------------
+BOOL Create_Thread_data(char tasks_file_path[], QUEUE* task_queue, Lock* lock, ThreadData** ptr_to_thread_data) {
+	(*ptr_to_thread_data) = (ThreadData*)malloc(sizeof(ThreadData));
+	if (*ptr_to_thread_data == NULL) {
+		printf("ERROR: allocation failed!\n");
+		return FAIL;
+	}
+	strcpy_s((*ptr_to_thread_data)->input_path, MAX_PATH, tasks_file_path);
+	(*ptr_to_thread_data)->task_queue = task_queue;
+	(*ptr_to_thread_data)->lock = lock;
 
-int ThreadFunction(QUEUE *tasks_queue, char *tasks_file_name) {
+	return TRUE;
+}
+int ThreadFunction(LPVOID lpParam) {
 	int task_offset;
 	int num;
+	int counter_num_of_factors = 0;
+	int* prime_factor_array = NULL;
+	char* string_to_file = NULL;
+	char tasks_file_name[MAX_PATH];
+
+	QUEUE* tasks_queue = NULL;
+	Lock* lock = NULL;
+
 	HANDLE hfile_tasks = NULL;
 	BOOL pass_or_fail = FALSE;
+
+	ThreadData* p_params;
+	p_params = (ThreadData*)lpParam;
+	strcpy_s(tasks_file_name, MAX_PATH, p_params->input_path);
+	tasks_queue = p_params->task_queue;
+	lock = p_params->lock;
 
 	//create new handle to tasks file in read and write mode 
 	hfile_tasks= CreateFileA((LPCSTR)tasks_file_name, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -21,6 +46,9 @@ int ThreadFunction(QUEUE *tasks_queue, char *tasks_file_name) {
 		task_offset = Pop(tasks_queue);
 		pass_or_fail=read_num_from_tasks_file(hfile_tasks, &num, task_offset);
 		IF_FAILED_END_PROGRAM(pass_or_fail)
+		pass_or_fail = find_prime_factors(num, &prime_factor_array, &counter_num_of_factors);
+		IF_FAILED_END_PROGRAM(pass_or_fail)
+		create_string_to_write(&string_to_file, num, counter_num_of_factors, &prime_factor_array);
 
 		pass_or_fail=write_to_tasks_file(hfile_tasks, num);
 		IF_FAILED_END_PROGRAM(pass_or_fail)
@@ -61,16 +89,11 @@ BOOL read_num_from_tasks_file(HANDLE hfile_tasks, int *num, LONG offset) {
 BOOL write_to_tasks_file(HANDLE hfile_tasks, int num) {
 	BOOL bErrorFlag = FALSE;
 	BOOL pass_or_fail = FALSE;
-	int counter_num_of_factors = 0;
-	int* prime_factor_array = NULL;
-	char* string_to_file = NULL;
+	
 	DWORD lpNumberOfBytesWritten=0;
 	DWORD nNumberOfBytesToWrite = 0;
 
-	pass_or_fail = find_prime_factors(num, &prime_factor_array, &counter_num_of_factors);
-	IF_FAILED_END_PROGRAM(pass_or_fail)
-	create_string_to_write(&string_to_file, num, counter_num_of_factors, &prime_factor_array);
-
+	
 	SetFilePointer(hfile_tasks,0, NULL, FILE_END);//set pointer to end of file
 	if (NULL != string_to_file) nNumberOfBytesToWrite = strlen(string_to_file);//////need to check length with ANAT
 	printf("size: %d\n", nNumberOfBytesToWrite);

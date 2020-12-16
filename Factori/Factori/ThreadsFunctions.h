@@ -23,7 +23,11 @@
 
 
 // Structs --------------------------------------------------------------------
-
+typedef struct ThreadData {
+	char input_path[MAX_PATH];// the path of the input file
+	QUEUE* task_queue;
+	Lock* lock  ;//the statring point (by bytes) the thread need to decrypte/encrypte 
+} ThreadData;
 
 // Function Declarations -------------------------------------------------------
 BOOL read_num_from_tasks_file(HANDLE hfile_tasks, int* num, LONG offset);
