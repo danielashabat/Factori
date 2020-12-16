@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 	BOOL pass_or_fail = FALSE;
 
 	//DEBUG start:
-	int num = 1337; 
+	int num = 25; 
 	int counter_num_of_factors = 0;
 	int* prime_factor_array = NULL;
 	int num_of_digits = get_number_of_digits(num);
@@ -109,6 +109,7 @@ BOOL  find_prime_factors(int num, int** prime_factor_array, int* counter_num_of_
 	int i = 3;
 	int* p_prime_factors = NULL;
 	int counter = 0;
+	
 	p_prime_factors = (int*)malloc(sizeof(int));
 	if (p_prime_factors == NULL) {
 		return FALSE;
@@ -127,7 +128,7 @@ BOOL  find_prime_factors(int num, int** prime_factor_array, int* counter_num_of_
 	}
 
 	while (i <= sqrt(num)) {
-		while (i % num) {///divide in zero ERROR
+		while (num % i == 0) {///divide in zero ERROR
 			p_prime_factors[counter] = i;
 			num = (num / i);
 			counter++;
@@ -139,7 +140,8 @@ BOOL  find_prime_factors(int num, int** prime_factor_array, int* counter_num_of_
 		i = i + 2;
 	}
 	if (num > 2) {
-		(p_prime_factors)[counter] = i;
+
+		(p_prime_factors)[counter] = num;
 		counter++;
 	}
 	*counter_num_of_factors = counter;
@@ -160,7 +162,7 @@ BOOL create_string_to_write(char** string, int num, int num_of_factors, int** fa
 
 
 
-	char buffer_str_factors[5];
+	char buffer_str_factors[7];
 	for (int i = 0; i < num_of_factors; i++) {
 
 		if (i != num_of_factors - 1) {
