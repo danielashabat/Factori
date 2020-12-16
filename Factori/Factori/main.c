@@ -98,6 +98,9 @@ BOOL  find_prime_factors(int num, int** prime_factor_array, int* counter_num_of_
 		return FALSE;
 	}
 	while (num % 2 == 0) {
+		if (p_prime_factors == NULL) {
+			return FALSE;
+		}
 		p_prime_factors[counter] = 2;
 		num = (num / 2);
 		counter++;
