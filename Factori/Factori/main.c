@@ -88,18 +88,26 @@ void PrintQueue(QUEUE* queue) {
 	}
 }
 
-BOOL  find_prime_factors(int num , int** prime_factor_array , int* counter_num_of_factors) {
-	
+BOOL  find_prime_factors(int num, int** prime_factor_array, int* counter_num_of_factors) {
+
 	int i = 3;
 	int* p_prime_factors = NULL;
 	int counter = 0;
 	p_prime_factors = (int*)malloc(sizeof(int));
-	
+	if (p_prime_factors == NULL) {
+		return FALSE;
+	}
 	while (num % 2 == 0) {
+		if (p_prime_factors == NULL) {
+			return FALSE;
+		}
 		p_prime_factors[counter] = 2;
 		num = (num / 2);
 		counter++;
-		p_prime_factors = (int*)realloc(p_prime_factors, (counter +1) * sizeof(int));
+		p_prime_factors = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
+		if (p_prime_factors == NULL) {
+			return FALSE;
+		}
 	}
 
 	while (i <= sqrt(num)) {
@@ -108,6 +116,9 @@ BOOL  find_prime_factors(int num , int** prime_factor_array , int* counter_num_o
 			num = (num / i);
 			counter++;
 			p_prime_factors = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
+			if (p_prime_factors == NULL) {
+				return FALSE;
+			}
 		}
 		i = i + 2;
 	}
@@ -120,37 +131,34 @@ BOOL  find_prime_factors(int num , int** prime_factor_array , int* counter_num_o
 	return TRUE;
 }
 
-BOOL create_string_to_write(char** string, int num, int num_of_factors , int** factor_array) {
-	
-	char* str1 = "The prime factors of ";
-	char* str2 = " are:";
-	char** buffer_str_factors = NULL;
-	int num_of_digits = get_number_of_digits(num);
-	char* buffer_str_num = (char*)malloc(sizeof(char)*(num_of_digits + 26));
-	sprintf(buffer_str_num, "The prime factors of %d are:", num);
-	int len_of_string = 27 + num_of_digits + (num_of_factors * 3);
+BOOL create_string_to_write(char** string, int num, int num_of_factors, int** factor_array) {
+
+
+
+	int len_of_string = 27 + 9 + (5 * num_of_factors) + num_of_factors * 2;
 	*string = (char*)malloc(sizeof(char) * len_of_string);
-	
-	strcpy_s(*string,sizeof(*string), str1);
-	strcpy_s(*string, sizeof(*string), buffer_str_num);
-	strcpy_s(*string, sizeof(*string), str2);
-	free(buffer_str_num);
-	buffer_str_factors = (char**)malloc(sizeof(char*) * num_of_factors);
+	sprintf(*string, "The prime factors of %d are:", num);
+	if (*string == NULL) {
+		return FALSE;
+	}
+
+
+
+	char buffer_str_factors[5];
 	for (int i = 0; i < num_of_factors; i++) {
-		strcpy_s(*string, sizeof(*string), " ");
-		num_of_digits = get_number_of_digits(num);
-		buffer_str_factors[i] = (char*)malloc(sizeof(char) * num_of_digits);
-		sprintf(buffer_str_factors[i], "%d", num);
-		strcpy_s(*string, sizeof(*string), buffer_str_factors[i]);
-		if (i != num_of_factors) {
-			strcpy_s(*string, sizeof(*string), ",");
+
+		if (i != num_of_factors - 1) {
+
+			sprintf(buffer_str_factors, " %d,", (*factor_array)[i]);
+			strcat(*string, buffer_str_factors);
 		}
 		else {
-			strcpy_s(*string, sizeof(*string), "\n\r");
+			sprintf(buffer_str_factors, " %d\n\r", (*factor_array)[i]);
+			strcat(*string, buffer_str_factors);
 		}
-		free(buffer_str_factors[i]);
+
 	}
-	free(buffer_str_factors);
+	return TRUE;
 }
 
 int get_number_of_digits(num) {
@@ -159,4 +167,5 @@ int get_number_of_digits(num) {
 		count++;
 		num = num /= 10;
 	}
+	return count;
 }
