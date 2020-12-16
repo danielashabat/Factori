@@ -1,6 +1,23 @@
-﻿  main.c
-C:\Users\Anat\source\repos\Factori\Factori\Factori\main.c(41,42): warning C4013: 'get_number_of_digits' undefined; assuming extern returning int
-C:\Users\Anat\source\repos\Factori\Factori\Factori\main.c(42,35): warning C4013: 'find_prime_factors' undefined; assuming extern returning int
-C:\Users\Anat\source\repos\Factori\Factori\Factori\main.c(45,24): warning C4013: 'create_string_to_write' undefined; assuming extern returning int
-C:\Users\Anat\source\repos\Factori\Factori\Factori\main.c(68,16): warning C4013: 'ThreadFunction' undefined; assuming extern returning int
-  Factori.vcxproj -> C:\Users\Anat\source\repos\Factori\Factori\Debug\Factori.exe
+﻿  ThreadsFunctions.c
+C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(86,35): warning C4013: 'find_prime_factors' undefined; assuming extern returning int
+C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(88,39): warning C4013: 'create_string_to_write' undefined; assuming extern returning int
+C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(94,63): warning C4047: 'function': 'int' differs in levels of indirection from 'char **'
+C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(94,63): warning C4024: 'write_to_tasks_file': different types for formal and actual parameter 2
+C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(94,68): warning C4020: 'write_to_tasks_file': too many actual parameters
+C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(135,77): warning C4028: formal parameter 2 different from declaration
+C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(135,77): warning C4029: declared formal parameter list different from definition
+C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(218,18): warning C4013: 'sqrt' undefined; assuming extern returning int
+C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(246,1): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\stdio.h(1774): message : see declaration of 'sprintf'
+C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(258,1): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\stdio.h(1774): message : see declaration of 'sprintf'
+C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(259,1): error C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(90): message : see declaration of 'strcat'
+C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(262,1): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\stdio.h(1774): message : see declaration of 'sprintf'
+C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(263,1): error C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(90): message : see declaration of 'strcat'
+  main.c
+C:\Users\Anat\source\repos\Factori\Factori\Factori\main.c(60,16): warning C4013: 'ThreadFunction' undefined; assuming extern returning int
+C:\Users\Anat\source\repos\Factori\Factori\Factori\main.c(122,22): error C2082: redefinition of formal parameter 'thread_handle'
+  Generating Code...

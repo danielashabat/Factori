@@ -20,7 +20,7 @@ BOOL Create_Thread_data(char tasks_file_path[], QUEUE* task_queue, Lock* lock,HA
 	(*ptr_to_thread_data)->queue_mutex = queue_mutex;
 	return TRUE;
 }
-int ThreadFunction(LPVOID lpParam) {
+DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 	int task_offset;
 	int num;
 	int counter_num_of_factors = 0;
@@ -191,4 +191,87 @@ BOOL check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_
 
 
 
+}
+BOOL  find_prime_factors(int num, int** prime_factor_array, int* counter_num_of_factors) {
+
+	int i = 3;
+	int* p_prime_factors = NULL;
+	int counter = 0;
+
+	p_prime_factors = (int*)malloc(sizeof(int));
+	if (p_prime_factors == NULL) {
+		return FALSE;
+	}
+	while (num % 2 == 0) {
+		if (p_prime_factors == NULL) {
+			return FALSE;
+		}
+		p_prime_factors[counter] = 2;
+		num = (num / 2);
+		counter++;
+		p_prime_factors = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
+		if (p_prime_factors == NULL) {
+			return FALSE;
+		}
+	}
+
+	while (i <= sqrt(num)) {
+		while (num % i == 0) {///divide in zero ERROR
+			p_prime_factors[counter] = i;
+			num = (num / i);
+			counter++;
+			p_prime_factors = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
+			if (p_prime_factors == NULL) {
+				return FALSE;
+			}
+		}
+		i = i + 2;
+	}
+	if (num > 2) {
+
+		(p_prime_factors)[counter] = num;
+		counter++;
+	}
+	*counter_num_of_factors = counter;
+	*prime_factor_array = p_prime_factors;
+	return TRUE;
+}
+
+BOOL create_string_to_write(char** string, int num, int num_of_factors, int** factor_array) {
+
+
+
+	int len_of_string = 27 + 9 + (5 * num_of_factors) + num_of_factors * 2;
+	*string = (char*)malloc(sizeof(char) * len_of_string);
+	sprintf(*string, "The prime factors of %d are:", num);
+	if (*string == NULL) {
+		return FALSE;
+	}
+
+
+
+	char buffer_str_factors[7];
+	for (int i = 0; i < num_of_factors; i++) {
+
+		if (i != num_of_factors - 1) {
+
+			sprintf(buffer_str_factors, " %d,", (*factor_array)[i]);
+			strcat(*string, buffer_str_factors);
+		}
+		else {
+			sprintf(buffer_str_factors, " %d\r\n", (*factor_array)[i]);
+			strcat(*string, buffer_str_factors);
+		}
+
+	}
+	return TRUE;
+}
+
+int get_number_of_digits(num) {
+	int count = 0;
+	while (num != 0) {
+		count++;
+		num = num /= 10;
+	}
+	return count;
 }

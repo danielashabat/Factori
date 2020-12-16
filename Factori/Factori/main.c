@@ -1,14 +1,18 @@
-#define _CRT_SECURE_NO_WARNINGS 
+//#define _CRT_SECURE_NO_WARNINGS 
 // Includes --------------------------------------------------------------------
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
 #include "Queue.h"
+#include "Lock.h"
+#include "ThreadsFunctions.h"
 
 // Defines --------------------------------------------------------------------
 
 #define FUNCTION_FAILED -1
+#define THREAD_SUCCESS ((int)(0))
+#define THREAD_FAIL ((int)(1))
 
 // Function Declarations -------------------------------------------------------
 
@@ -33,34 +37,61 @@ int main(int argc, char* argv[]) {
 	QUEUE* tasks_queue = NULL;
 	FILE* tasks_priorities_file = NULL;
 	BOOL pass_or_fail = FALSE;
-
-	//DEBUG start:
-	int num = 25; 
-	int counter_num_of_factors = 0;
-	int* prime_factor_array = NULL;
-	int num_of_digits = get_number_of_digits(num);
-	pass_or_fail = find_prime_factors(num, &prime_factor_array ,&counter_num_of_factors);
-	
-	char* string_to_file =NULL;
-	create_string_to_write(&string_to_file, num, counter_num_of_factors, &prime_factor_array);
-
-	printf("%s", string_to_file);
-	free(prime_factor_array);
-	free(string_to_file);
-	//DEBUG end
-
+	Lock* lock = NULL;
+	HANDLE queue_mutex = NULL;
+	int num_of_thread;
+	HANDLE* threads_handles = NULL; //pointer to threads handles array
+	DWORD* thread_ids = NULL; ////pointer to threads ids array
+	ThreadData* ptr_to_thread_data = NULL;
+	char* tasks_file_name[MAX_PATH];
 	//read tasks proirities file and create a tasks queue
 	errno_t err = fopen_s(&tasks_priorities_file,argv[2], "r");
 	if (err || tasks_priorities_file == NULL) {
 		printf("ERROR: failed to open the'Tasks Priorities' file");
 		return FUNCTION_FAILED;
 	}
-
-	tasks_queue=create_tasks_queue(tasks_priorities_file);//crearte new queue and insert to it the priority offsets from file 
+	strcpy_s(tasks_file_name, MAX_PATH, argv[2]);
+	tasks_queue=create_tasks_queue(tasks_priorities_file,&num_of_thread);//crearte new queue and insert to it the priority offsets from file 
 	if (tasks_queue == NULL) {
 		return FUNCTION_FAILED;
 	}
 	//***********
+
+	lock = InitializeLock();
+	pass_or_fail = initalize_queue_mutex(&queue_mutex);
+	pass_or_fail = Create_Thread_data(tasks_file_name, tasks_queue, lock, queue_mutex, &ptr_to_thread_data);
+	threads_handles = (HANDLE*)malloc(sizeof(HANDLE) * num_of_thread);//creating array of handles in the size of num_threads
+
+	if (threads_handles == NULL) {//checl if aloocation failed
+		pass_or_fail = FAIL;
+		printf("memory allocation failed\n");
+	}
+
+	for (int i = 0; i < num_of_thread; i++) {//inital array to NULL for close handles
+		threads_handles[i] = NULL;
+	}
+
+	thread_ids = (DWORD*)malloc(num_of_thread * sizeof(DWORD));// creating array of DWORD in the size of num_threads
+
+	if (thread_ids == NULL) {//check if aloocation failed
+		pass_or_fail = FAIL;
+		printf("memory allocation failed\n");
+		
+	}
+	for (int i = 0; i < num_of_thread; i++) {//inital array to NULL for close handles
+		thread_ids[i] = NULL;
+	}
+
+	//create_threads
+	for (int i = 0; i < num_of_thread; i++)
+	{
+		CreateThreadSimple(ThreadFunction, ptr_to_thread_data, &thread_ids[i],&threads_handles[i]);
+		if (NULL == threads_handles[i])
+		{
+			printf("Error when creating thread: %d\n", GetLastError());
+			pass_or_fail = FAIL;
+		}
+	}
 
 
 	//Daniela's debug:
@@ -74,7 +105,7 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-QUEUE* create_tasks_queue(FILE* tasks_file) {
+QUEUE* create_tasks_queue(FILE* tasks_file,int* num_of_nodes) {
 	QUEUE* tasks_queue = NULL;
 	tasks_queue=InitializeQueue();//create new and empty queue
 	int offset;
@@ -82,6 +113,7 @@ QUEUE* create_tasks_queue(FILE* tasks_file) {
 		while (!feof(tasks_file)) {
 			fscanf_s(tasks_file, "%d\r\n", &offset);
 			Push(tasks_queue, offset);//pushing the new 'offset' to the end of the queue
+			(*num_of_nodes)++;
 		}
 	}
 	return tasks_queue;//return the new queue
@@ -104,86 +136,100 @@ void PrintQueue(QUEUE* queue) {
 	}
 }
 
-BOOL  find_prime_factors(int num, int** prime_factor_array, int* counter_num_of_factors) {
-
-	int i = 3;
-	int* p_prime_factors = NULL;
-	int counter = 0;
-	
-	p_prime_factors = (int*)malloc(sizeof(int));
-	if (p_prime_factors == NULL) {
-		return FALSE;
+int get_number_of_node_in_queue(QUEUE* queue) {
+	int num_of_nodes = 0;
+	Node* curr_node = queue->head;
+	while (curr_node != NULL) {
+		
+		num_of_nodes++;
+		printf("%d\n", num_of_nodes);
+		curr_node = curr_node->next;
 	}
-	while (num % 2 == 0) {
-		if (p_prime_factors == NULL) {
-			return FALSE;
-		}
-		p_prime_factors[counter] = 2;
-		num = (num / 2);
-		counter++;
-		p_prime_factors = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
-		if (p_prime_factors == NULL) {
-			return FALSE;
-		}
-	}
-
-	while (i <= sqrt(num)) {
-		while (num % i == 0) {///divide in zero ERROR
-			p_prime_factors[counter] = i;
-			num = (num / i);
-			counter++;
-			p_prime_factors = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
-			if (p_prime_factors == NULL) {
-				return FALSE;
-			}
-		}
-		i = i + 2;
-	}
-	if (num > 2) {
-
-		(p_prime_factors)[counter] = num;
-		counter++;
-	}
-	*counter_num_of_factors = counter;
-	*prime_factor_array = p_prime_factors;
-	return TRUE;
+	return num_of_nodes;
 }
 
-BOOL create_string_to_write(char** string, int num, int num_of_factors, int** factor_array) {
-
-
-
-	int len_of_string = 27 + 9 + (5 * num_of_factors) + num_of_factors * 2;
-	*string = (char*)malloc(sizeof(char) * len_of_string);
-	sprintf(*string, "The prime factors of %d are:", num);
-	if (*string == NULL) {
+BOOL initalize_queue_mutex(HANDLE* queue_mutex) {
+	*queue_mutex = CreateMutex(
+		NULL,	/* default security attributes */
+		FALSE,	/* initially not owned */
+		NULL);	/* unnamed mutex */
+	if (NULL == *queue_mutex)
+	{
+		printf("Error when creating mutex: %d\n", GetLastError());
 		return FALSE;
 	}
 
-
-
-	char buffer_str_factors[7];
-	for (int i = 0; i < num_of_factors; i++) {
-
-		if (i != num_of_factors - 1) {
-
-			sprintf(buffer_str_factors, " %d,", (*factor_array)[i]);
-			strcat(*string, buffer_str_factors);
-		}
-		else {
-			sprintf(buffer_str_factors, " %d\r\n", (*factor_array)[i]);
-			strcat(*string, buffer_str_factors);
-		}
-
-	}
 	return TRUE;
 }
 
-int get_number_of_digits(num) {
-	int count = 0;
-	while (num != 0) {
-		count++;
-		num = num /= 10;
+BOOL  CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
+	LPVOID p_thread_parameters,
+	LPDWORD p_thread_id,HANDLE* thread_handle)
+{
+	HANDLE thread_handle;
+
+	if (NULL == p_start_routine)
+	{
+		printf("Error when creating a thread");
+		printf("Received null pointer");
+		return FALSE;
 	}
-	return count;
+
+	if (NULL == p_thread_id)
+	{
+		printf("Error when creating a thread");
+		printf("Received null pointer");
+		return FALSE;
+	}
+
+	*thread_handle = CreateThread(
+		NULL,                /*  default security attributes */
+		0,                   /*  use default stack size */
+		p_start_routine,     /*  thread function */
+		p_thread_parameters, /*  argument to thread function */
+		0,                   /*  use default creation flags */
+		p_thread_id);        /*  returns the thread identifier */
+
+	if (NULL == *thread_handle)
+	{
+		printf("Couldn't create thread\n");
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+BOOL check_thread_exit(int num_threads,HANDLE* threads_handles) {
+	DWORD dw_ret = 0;
+	BOOL pass_or_fail;
+	DWORD exit_code;
+	BOOL ret_val;
+	dw_ret = WaitForMultipleObjects(
+		num_threads,  // number of objects in array
+		threads_handles,     // array of objects
+		TRUE,       // wait for all objects to be signaled
+		5000);       // five-second wait
+
+	// check for failure 
+	if (dw_ret != WAIT_OBJECT_0) {
+		printf("ERROR:%d while waiting to threads to finish\n", GetLastError());
+		pass_or_fail = FAIL;
+		
+		
+	}
+	//check exit code of each thread
+	for (int i = 0; i < num_threads; i++) {
+		ret_val = GetExitCodeThread(*(threads_handles + i), &exit_code);
+		if (ret_val == 0) {
+			printf("Error when getting thread exit code\n");
+			pass_or_fail = FAIL;
+		}
+		if (THREAD_SUCCESS != (int)exit_code) {
+			pass_or_fail = FAIL;
+			
+		}
+
+	}
+
 }

@@ -33,7 +33,8 @@ typedef struct ThreadData {
 // Function Declarations -------------------------------------------------------
 BOOL read_num_from_tasks_file(HANDLE hfile_tasks, int* num, LONG offset);
 BOOL write_to_tasks_file(HANDLE hfile_tasks, int num);
-
+DWORD WINAPI ThreadFunction(LPVOID lpParam);
+BOOL Create_Thread_data(char tasks_file_path[], QUEUE* task_queue, Lock* lock, HANDLE queue_mutex, ThreadData** ptr_to_thread_data);
 //functions for handling errors:
 BOOL check_file_handle(HANDLE h_file, char* file_name);
 BOOL check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_write, DWORD lpNumberOfBytesRead_or_Written);
