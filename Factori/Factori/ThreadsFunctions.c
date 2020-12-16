@@ -32,7 +32,8 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 	HANDLE queue_mutex_handle = NULL;
 	QUEUE* tasks_queue = NULL;
 	Lock* lock = NULL;
-
+	BOOL queue_is_empty = FALSE; 
+	BOOL start_read_and_write = FALSE;
 	HANDLE hfile_tasks = NULL;
 	BOOL pass_or_fail = FALSE;
 
@@ -42,66 +43,53 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 	tasks_queue = p_params->task_queue;
 	lock = p_params->lock;
 	queue_mutex_handle = p_params->queue_mutex;
+
 	//create new handle to tasks file in read and write mode 
 	hfile_tasks= CreateFileA((LPCSTR)tasks_file_name, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	IF_FAILED_END_PROGRAM(check_file_handle(hfile_tasks, tasks_file_name))//check for failure
+	IF_FAILED_END_PROGRAM(check_file_handle(hfile_tasks, tasks_file_name));//check for failure
 
-	/* Create the mutex that will be used to synchronize access to queue */
-	wait_code = WaitForSingleObject(queue_mutex_handle, INFINITE);
-	if (WAIT_OBJECT_0 != wait_code)
-	{
-		printf("-ERROR: %d - WaitForSingleObject failed !\n", GetLastError());
-		return FALSE;
+	while (!queue_is_empty) {
+		pass_or_fail = check_queue_status(queue_mutex_handle, tasks_queue, &task_offset, &queue_is_empty);
+		if (!queue_is_empty) {
+			//Read taske from file
+			pass_or_fail = read_lock(lock, 10000);
+			printf("can read file \n");
+			IF_FAILED_END_PROGRAM(pass_or_fail);
+			pass_or_fail = read_num_from_tasks_file(hfile_tasks, &num, task_offset);
+			printf("end read critical section \n");
+			IF_FAILED_END_PROGRAM(pass_or_fail);
+			pass_or_fail = read_release(lock, 10000);
+			IF_FAILED_END_PROGRAM(pass_or_fail);
+
+			//Analyze the string - not need to be in critical section 
+			IF_FAILED_END_PROGRAM(pass_or_fail)
+				pass_or_fail = find_prime_factors(num, &prime_factor_array, &counter_num_of_factors);
+			IF_FAILED_END_PROGRAM(pass_or_fail)
+				pass_or_fail = create_string_to_write(&string_to_file, num, counter_num_of_factors, &prime_factor_array);
+			IF_FAILED_END_PROGRAM(pass_or_fail);
+			printf("%s", string_to_file);
+
+
+			//write task to file
+			pass_or_fail = write_lock(lock, 10000);
+			IF_FAILED_END_PROGRAM(pass_or_fail);
+			pass_or_fail = write_to_tasks_file(hfile_tasks, string_to_file, num);
+			printf("end file critical section \n");
+			IF_FAILED_END_PROGRAM(pass_or_fail);
+			pass_or_fail = write_release(lock, 10000);
+
+			IF_FAILED_END_PROGRAM(pass_or_fail);
+
+			free(prime_factor_array);
+			free(string_to_file);
+
+
+			CloseHandle(hfile_tasks);
+		}
 	}
-	//critical section- check if queue is not empty and pop the mission 
-	if (!Empty(tasks_queue)) {
-		task_offset = Pop(tasks_queue);
-	}
-	else {
-		pass_or_fail = FAIL;
-		IF_FAILED_END_PROGRAM(pass_or_fail)
-	}
-	//end of critical section 
-    //*Release queue mutex
 	
-	ret_val = ReleaseMutex(queue_mutex_handle);
-	if (FALSE == ret_val)
-	{
-		printf("-ERROR: %d - release semaphore failed !\n", GetLastError());
-		return FALSE;
-	}
-
-	return TRUE;
 	
-	//Read taske from file
-	pass_or_fail=read_lock(lock, 5000);
-	IF_FAILED_END_PROGRAM(pass_or_fail);
-	pass_or_fail=read_num_from_tasks_file(hfile_tasks, &num, task_offset);
-	IF_FAILED_END_PROGRAM(pass_or_fail);
-	pass_or_fail=read_release(lock, 5000);
-	IF_FAILED_END_PROGRAM(pass_or_fail);
-
-	//Analyze the string - not need to be in critical section 
-	IF_FAILED_END_PROGRAM(pass_or_fail)
-	pass_or_fail = find_prime_factors(num, &prime_factor_array, &counter_num_of_factors);
-	IF_FAILED_END_PROGRAM(pass_or_fail)
-	pass_or_fail = create_string_to_write(&string_to_file, num, counter_num_of_factors, &prime_factor_array);
-	IF_FAILED_END_PROGRAM(pass_or_fail);
-
-	//write task to file
-	pass_or_fail = write_lock(lock, 5000);
-	IF_FAILED_END_PROGRAM(pass_or_fail);
-	pass_or_fail=write_to_tasks_file(hfile_tasks, &string_to_file, num);
-	IF_FAILED_END_PROGRAM(pass_or_fail);
-	pass_or_fail = write_release(lock, 5000);
-
-	IF_FAILED_END_PROGRAM(pass_or_fail);
 	
-	free(prime_factor_array);
-	free(string_to_file);
-	
-
-	CloseHandle(hfile_tasks);
 	return 0;
 }
 
@@ -132,7 +120,7 @@ BOOL read_num_from_tasks_file(HANDLE hfile_tasks, int *num, LONG offset) {
 	return SUCCSESS;
 }
 
-BOOL write_to_tasks_file(HANDLE hfile_tasks,char** string_to_file, int num) {
+BOOL write_to_tasks_file(HANDLE hfile_tasks,char* string_to_file, int num) {
 	BOOL bErrorFlag = FALSE;
 	BOOL pass_or_fail = FALSE;
 	
@@ -141,7 +129,7 @@ BOOL write_to_tasks_file(HANDLE hfile_tasks,char** string_to_file, int num) {
 
 	
 	SetFilePointer(hfile_tasks,0, NULL, FILE_END);//set pointer to end of file
-	if (NULL != *string_to_file) nNumberOfBytesToWrite = strlen(*string_to_file);//////need to check length with ANAT
+	if (NULL != string_to_file) nNumberOfBytesToWrite = strlen(string_to_file);//////need to check length with ANAT
 	printf("size: %d\n", nNumberOfBytesToWrite);
 
 	bErrorFlag = WriteFile(hfile_tasks, string_to_file, nNumberOfBytesToWrite, &lpNumberOfBytesWritten, NULL);
@@ -243,24 +231,24 @@ BOOL create_string_to_write(char** string, int num, int num_of_factors, int** fa
 
 	int len_of_string = 27 + 9 + (5 * num_of_factors) + num_of_factors * 2;
 	*string = (char*)malloc(sizeof(char) * len_of_string);
-	sprintf(*string, "The prime factors of %d are:", num);
+	sprintf_s(*string, len_of_string, "The prime factors of %d are:", num);
 	if (*string == NULL) {
 		return FALSE;
 	}
 
 
 
-	char buffer_str_factors[7];
+	char buffer_str_factors[8];
 	for (int i = 0; i < num_of_factors; i++) {
 
 		if (i != num_of_factors - 1) {
 
-			sprintf(buffer_str_factors, " %d,", (*factor_array)[i]);
-			strcat(*string, buffer_str_factors);
+			sprintf_s(buffer_str_factors,8, " %d,", (*factor_array)[i]);
+			strcat_s(*string, len_of_string, buffer_str_factors);
 		}
 		else {
-			sprintf(buffer_str_factors, " %d\r\n", (*factor_array)[i]);
-			strcat(*string, buffer_str_factors);
+			sprintf_s(buffer_str_factors, 8," %d\r\n", (*factor_array)[i]);
+			strcat_s(*string, len_of_string, buffer_str_factors);
 		}
 
 	}
@@ -274,4 +262,44 @@ int get_number_of_digits(num) {
 		num = num /= 10;
 	}
 	return count;
+}
+
+
+BOOL check_queue_status(HANDLE queue_mutex_handle,QUEUE* tasks_queue, int* task_offset,BOOL* queue_is_empty) {
+	DWORD wait_code;
+	BOOL ret_val;
+	BOOL pass_or_fail;
+	/* Create the mutex that will be used to synchronize access to queue */
+	wait_code = WaitForSingleObject(queue_mutex_handle, INFINITE);
+	if (WAIT_OBJECT_0 != wait_code)
+	{
+		printf("-ERROR: %d - WaitForSingleObject failed !\n", GetLastError());
+		return FALSE;
+	}
+	//critical section- check if queue is not empty and pop the mission 
+	if (!Empty(tasks_queue)) {
+		*task_offset = Pop(tasks_queue);
+		printf("%d\n", *task_offset);
+		*queue_is_empty = FALSE;
+	}
+	else {
+		*queue_is_empty = TRUE;
+		*task_offset = -1; 
+	}
+	//end of critical section 
+	//*Release queue mutex
+	printf("end queue critical section %d\n", task_offset);
+	ret_val = ReleaseMutex(queue_mutex_handle);
+	if (FALSE == ret_val)
+	{
+		printf("-ERROR: %d - release semaphore failed !\n", GetLastError());
+		return FALSE;
+	}
+
+}
+
+BOOL read_and_write() {
+
+
+
 }

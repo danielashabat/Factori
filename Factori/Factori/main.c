@@ -40,18 +40,21 @@ int main(int argc, char* argv[]) {
 	Lock* lock = NULL;
 	HANDLE queue_mutex = NULL;
 	int num_of_thread;
+	int num_of_lines;
 	HANDLE* threads_handles = NULL; //pointer to threads handles array
 	DWORD* thread_ids = NULL; ////pointer to threads ids array
 	ThreadData* ptr_to_thread_data = NULL;
-	char* tasks_file_name[MAX_PATH];
+	char tasks_file_name[MAX_PATH];
 	//read tasks proirities file and create a tasks queue
 	errno_t err = fopen_s(&tasks_priorities_file,argv[2], "r");
 	if (err || tasks_priorities_file == NULL) {
 		printf("ERROR: failed to open the'Tasks Priorities' file");
 		return FUNCTION_FAILED;
 	}
-	strcpy_s(tasks_file_name, MAX_PATH, argv[2]);
-	tasks_queue=create_tasks_queue(tasks_priorities_file,&num_of_thread);//crearte new queue and insert to it the priority offsets from file 
+	strcpy_s(tasks_file_name, MAX_PATH, argv[1]);
+	num_of_lines = atoi(argv[3]);
+	num_of_thread = atoi(argv[4]);
+	tasks_queue=create_tasks_queue(tasks_priorities_file);//crearte new queue and insert to it the priority offsets from file 
 	if (tasks_queue == NULL) {
 		return FUNCTION_FAILED;
 	}
@@ -85,7 +88,7 @@ int main(int argc, char* argv[]) {
 	//create_threads
 	for (int i = 0; i < num_of_thread; i++)
 	{
-		CreateThreadSimple(ThreadFunction, ptr_to_thread_data, &thread_ids[i],&threads_handles[i]);
+		pass_or_fail = CreateThreadSimple(ThreadFunction, ptr_to_thread_data, &thread_ids[i],&threads_handles[i]);
 		if (NULL == threads_handles[i])
 		{
 			printf("Error when creating thread: %d\n", GetLastError());
@@ -93,10 +96,18 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-
+	pass_or_fail = check_thread_exit(num_of_thread, threads_handles);
+	for (int i = 0; i < num_of_thread; i++) {
+		pass_or_fail = CloseHandle(threads_handles[i]);
+		if (FALSE == pass_or_fail)
+		{
+			printf("Error when closing thread: %d\n", GetLastError());
+			return FALSE ;
+		}
+	}
 	//Daniela's debug:
 	PrintQueue(tasks_queue);
-	ThreadFunction(tasks_queue, argv[1]);
+	//ThreadFunction(tasks_queue, argv[1]);
 	//end debug
 
 
@@ -105,7 +116,7 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-QUEUE* create_tasks_queue(FILE* tasks_file,int* num_of_nodes) {
+QUEUE* create_tasks_queue(FILE* tasks_file) {
 	QUEUE* tasks_queue = NULL;
 	tasks_queue=InitializeQueue();//create new and empty queue
 	int offset;
@@ -113,7 +124,7 @@ QUEUE* create_tasks_queue(FILE* tasks_file,int* num_of_nodes) {
 		while (!feof(tasks_file)) {
 			fscanf_s(tasks_file, "%d\r\n", &offset);
 			Push(tasks_queue, offset);//pushing the new 'offset' to the end of the queue
-			(*num_of_nodes)++;
+			
 		}
 	}
 	return tasks_queue;//return the new queue
@@ -136,17 +147,8 @@ void PrintQueue(QUEUE* queue) {
 	}
 }
 
-int get_number_of_node_in_queue(QUEUE* queue) {
-	int num_of_nodes = 0;
-	Node* curr_node = queue->head;
-	while (curr_node != NULL) {
-		
-		num_of_nodes++;
-		printf("%d\n", num_of_nodes);
-		curr_node = curr_node->next;
-	}
-	return num_of_nodes;
-}
+
+
 
 BOOL initalize_queue_mutex(HANDLE* queue_mutex) {
 	*queue_mutex = CreateMutex(
@@ -162,11 +164,13 @@ BOOL initalize_queue_mutex(HANDLE* queue_mutex) {
 	return TRUE;
 }
 
+
+
 BOOL  CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	LPVOID p_thread_parameters,
 	LPDWORD p_thread_id,HANDLE* thread_handle)
 {
-	HANDLE thread_handle;
+	
 
 	if (NULL == p_start_routine)
 	{
@@ -209,7 +213,7 @@ BOOL check_thread_exit(int num_threads,HANDLE* threads_handles) {
 		num_threads,  // number of objects in array
 		threads_handles,     // array of objects
 		TRUE,       // wait for all objects to be signaled
-		5000);       // five-second wait
+		20000);       // five-second wait
 
 	// check for failure 
 	if (dw_ret != WAIT_OBJECT_0) {
