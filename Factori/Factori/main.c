@@ -15,7 +15,7 @@
 //this function create a new queue and insert the offsets from the 'Tasks Priorities' file by creating a new nodes
 //return pointer to QUEUE if succeed, otherwise return NULL
 //input: pointer to 'Tasks Priorities' FILE
-QUEUE* create_queue_tasks(FILE* tasks_file);
+QUEUE* create_tasks_queue(FILE* tasks_file);
 
 //prints all the queues offset in their priority
 //input: pointer to QUEUE you want to print
@@ -25,12 +25,17 @@ void PrintQueue(QUEUE* queue);
 
 //command line: Factori.exe , tasks.txt, TasksPriorities.txt , NumberOfTasks, NumberOfthreads
 int main(int argc, char* argv[]) {
-	//check argc 
+	if (argc != 5) {
+		printf("ERROR: there is %d arguments (need to be 5)\n", argc);
+		return FUNCTION_FAILED;
+	}
 
-	QUEUE* queue_tasks = NULL;
-	FILE* tasks_file = NULL;
+	QUEUE* tasks_queue = NULL;
+	FILE* tasks_priorities_file = NULL;
 	BOOL pass_or_fail = FALSE;
-	int num = 24; 
+
+	//DEBUG start:
+	int num = 1337; 
 	int counter_num_of_factors = 0;
 	int* prime_factor_array = NULL;
 	int num_of_digits = get_number_of_digits(num);
@@ -38,37 +43,48 @@ int main(int argc, char* argv[]) {
 	
 	char* string_to_file =NULL;
 	create_string_to_write(&string_to_file, num, counter_num_of_factors, &prime_factor_array);
-	for (int i = 0; i < counter_num_of_factors; i++) {
-		printf("%d\n", prime_factor_array[i]);
-	}
+
+	printf("%s", string_to_file);
 	free(prime_factor_array);
-	errno_t err = fopen_s(&tasks_file,argv[1], "r");
-	if (err || tasks_file == NULL) {
+	free(string_to_file);
+	//DEBUG end
+
+	//read tasks proirities file and create a tasks queue
+	errno_t err = fopen_s(&tasks_priorities_file,argv[2], "r");
+	if (err || tasks_priorities_file == NULL) {
 		printf("ERROR: failed to open the'Tasks Priorities' file");
 		return FUNCTION_FAILED;
 	}
 
-	queue_tasks=create_queue_tasks(tasks_file);//crearte new queue and insert to it the priority offsets from file 
-	if (queue_tasks == NULL) {
+	tasks_queue=create_tasks_queue(tasks_priorities_file);//crearte new queue and insert to it the priority offsets from file 
+	if (tasks_queue == NULL) {
 		return FUNCTION_FAILED;
 	}
-	PrintQueue(queue_tasks);
-	DestroyQueue(queue_tasks,&queue_tasks);//release all the memory that allocates for the queue
-	fclose(tasks_file);//check if the file valid and close file
+	//***********
+
+
+	//Daniela's debug:
+	PrintQueue(tasks_queue);
+	ThreadFunction(tasks_queue, argv[1]);
+	//end debug
+
+
+	DestroyQueue(tasks_queue,&tasks_queue);//release all the memory that allocates for the queue
+	fclose(tasks_priorities_file);//check if the file valid and close file
 	return 0;
 }
 
-QUEUE* create_queue_tasks(FILE* tasks_file) {
-	QUEUE* queue_tasks = NULL;
-	queue_tasks=InitializeQueue();//create new and empty queue
+QUEUE* create_tasks_queue(FILE* tasks_file) {
+	QUEUE* tasks_queue = NULL;
+	tasks_queue=InitializeQueue();//create new and empty queue
 	int offset;
-	if (queue_tasks != NULL) {//check if intialize succeed
+	if (tasks_queue != NULL) {//check if intialize succeed
 		while (!feof(tasks_file)) {
 			fscanf_s(tasks_file, "%d\r\n", &offset);
-			Push(queue_tasks, offset);//pushing the new 'offset' to the end of the queue
+			Push(tasks_queue, offset);//pushing the new 'offset' to the end of the queue
 		}
 	}
-	return queue_tasks;//return the new queue
+	return tasks_queue;//return the new queue
 }
 
 void PrintQueue(QUEUE* queue) {
@@ -111,7 +127,7 @@ BOOL  find_prime_factors(int num, int** prime_factor_array, int* counter_num_of_
 	}
 
 	while (i <= sqrt(num)) {
-		while (i % num) {
+		while (i % num) {///divide in zero ERROR
 			p_prime_factors[counter] = i;
 			num = (num / i);
 			counter++;
@@ -153,7 +169,7 @@ BOOL create_string_to_write(char** string, int num, int num_of_factors, int** fa
 			strcat(*string, buffer_str_factors);
 		}
 		else {
-			sprintf(buffer_str_factors, " %d\n\r", (*factor_array)[i]);
+			sprintf(buffer_str_factors, " %d\r\n", (*factor_array)[i]);///DANIELA fixed ending
 			strcat(*string, buffer_str_factors);
 		}
 

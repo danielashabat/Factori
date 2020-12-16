@@ -66,6 +66,7 @@ BOOL read_lock(Lock* lock ,int time_out) {
 		printf("-ERROR: %d -release mutex failed !\n", GetLastError());
 		return FALSE;
 	}
+	printf("READ lock success!\n");
 	return TRUE;//function succeed
 }
 
@@ -91,6 +92,7 @@ BOOL read_release(Lock* lock , int time_out) {
 		printf("-ERROR: %d -release mutex failed !\n", GetLastError());
 		return FALSE;
 	}
+	printf("READ release success!\n");
 	return TRUE;//function succeed
 }
 
@@ -102,6 +104,7 @@ BOOL  write_lock(Lock* lock, int time_out) {
 		printf("-ERROR: %d - WaitForSingleObject failed !\n", GetLastError());
 		return FALSE;
 	}
+	printf("WRITE lock success!\n");
 	return TRUE;
 }
 
@@ -112,5 +115,6 @@ BOOL  write_release(Lock* lock, int time_out) {
 		printf("-ERROR: %d - release semaphore failed !\n", GetLastError());
 		return FALSE;
 	}
+	printf("WRITE release success!\n");
 	return TRUE;
 }

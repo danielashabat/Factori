@@ -1,1 +1,4 @@
-﻿  Factori.vcxproj -> C:\Users\Surface\source\repos\danielashabat\Factori\Factori\Debug\Factori.exe
+﻿  ThreadsFunctions.c
+C:\Users\Surface\source\repos\danielashabat\Factori\Factori\Factori\ThreadsFunctions.c(70,35): warning C4013: 'find_prime_factors' undefined; assuming extern returning int
+C:\Users\Surface\source\repos\danielashabat\Factori\Factori\Factori\ThreadsFunctions.c(72,24): warning C4013: 'create_string_to_write' undefined; assuming extern returning int
+  Factori.vcxproj -> C:\Users\Surface\source\repos\danielashabat\Factori\Factori\Debug\Factori.exe

@@ -38,11 +38,11 @@ if succeed the function return a new pointer to an empty queue
 if fails returns NULL*/
 QUEUE* InitializeQueue();
 
-/*this function return the offset of the first node that represt the offset of the most priority mission*/
+/*this function return the offset of the first node that represent the offset of the most priority mission*/
 /*input: pointer to queue*/
 int Top(QUEUE* queue);
 
-/*this function return the offset of the first node that represt the offset of the most priority mission and remove it from the queue*/
+/*this function return the offset of the first node that represent the offset of the most priority mission and remove it from the queue*/
 /*input: pointer to queue*/
 int Pop(QUEUE* queue);
 

@@ -24,12 +24,18 @@
     <ClCompile Include="Lock.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ThreadsFunctions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Queue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Lock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadsFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
