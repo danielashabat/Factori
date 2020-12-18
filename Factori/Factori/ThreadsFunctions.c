@@ -21,13 +21,11 @@ BOOL Create_Thread_data(char tasks_file_path[], QUEUE* task_queue, Lock* lock,HA
 	return TRUE;
 }
 DWORD WINAPI ThreadFunction(LPVOID lpParam) {
-	int task_offset;
+	int task_offset=0;
 	int num;
 	int counter_num_of_factors = 0;
 	
 	char tasks_file_name[MAX_PATH];
-	DWORD wait_code;
-	BOOL ret_val;
 	HANDLE queue_mutex_handle = NULL;
 	QUEUE* tasks_queue = NULL;
 	Lock* lock = NULL;
@@ -75,7 +73,7 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 			//write task to file
 			pass_or_fail = write_lock(lock, counter_num_of_factors*10000);
 			IF_FAILED_END_PROGRAM(pass_or_fail);
-			pass_or_fail = write_to_tasks_file(hfile_tasks, string_to_file, num);
+			pass_or_fail = write_to_tasks_file(hfile_tasks, string_to_file);
 			printf("end file critical section \n");
 			IF_FAILED_END_PROGRAM(pass_or_fail);
 			pass_or_fail = write_release(lock, counter_num_of_factors*10000);
@@ -122,7 +120,7 @@ BOOL read_num_from_tasks_file(HANDLE hfile_tasks, int *num, LONG offset) {
 	return SUCCSESS;
 }
 
-BOOL write_to_tasks_file(HANDLE hfile_tasks,char* string_to_file, int num) {
+BOOL write_to_tasks_file(HANDLE hfile_tasks,char* string_to_file) {
 	BOOL bErrorFlag = FALSE;
 	BOOL pass_or_fail = FALSE;
 	
@@ -186,6 +184,7 @@ BOOL  find_prime_factors(int num, int** prime_factor_array, int* counter_num_of_
 
 	int i = 3;
 	int* p_prime_factors = NULL;
+	int* temp = NULL;
 	int counter = 0;
 
 	p_prime_factors = (int*)malloc(sizeof(int));
@@ -199,10 +198,9 @@ BOOL  find_prime_factors(int num, int** prime_factor_array, int* counter_num_of_
 		p_prime_factors[counter] = 2;
 		num = (num / 2);
 		counter++;
-		p_prime_factors = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
-		if (p_prime_factors == NULL) {
-			return FALSE;
-		}
+		if (NULL !=p_prime_factors) temp = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
+		if (NULL != temp) p_prime_factors = temp; else return FALSE;
+
 	}
 
 	while (i <= sqrt(num)) {
@@ -210,10 +208,8 @@ BOOL  find_prime_factors(int num, int** prime_factor_array, int* counter_num_of_
 			p_prime_factors[counter] = i;
 			num = (num / i);
 			counter++;
-			p_prime_factors = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
-			if (p_prime_factors == NULL) {
-				return FALSE;
-			}
+			if (NULL != p_prime_factors)  temp = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
+			if (NULL != temp) p_prime_factors = temp; else return FALSE;
 		}
 		i = i + 2;
 	}
@@ -270,7 +266,6 @@ int get_number_of_digits(num) {
 BOOL check_queue_status(HANDLE queue_mutex_handle,QUEUE* tasks_queue, int* task_offset,BOOL* queue_is_empty) {
 	DWORD wait_code;
 	BOOL ret_val;
-	BOOL pass_or_fail;
 	/* Create the mutex that will be used to synchronize access to queue */
 	wait_code = WaitForSingleObject(queue_mutex_handle, INFINITE);
 	if (WAIT_OBJECT_0 != wait_code)
@@ -290,18 +285,19 @@ BOOL check_queue_status(HANDLE queue_mutex_handle,QUEUE* tasks_queue, int* task_
 	}
 	//end of critical section 
 	//*Release queue mutex
-	printf("end queue critical section %d\n", task_offset);
+	printf("end queue critical section %d\n", *task_offset);
 	ret_val = ReleaseMutex(queue_mutex_handle);
 	if (FALSE == ret_val)
 	{
 		printf("-ERROR: %d - release semaphore failed !\n", GetLastError());
 		return FALSE;
 	}
+	return TRUE;
 
 }
 
-BOOL read_and_write() {
-
-
-
-}
+//BOOL read_and_write() {
+//
+//
+//
+//}

@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <math.h>
 #include <time.h>
 #include "Queue.h"
 #include "Lock.h"
@@ -27,6 +26,10 @@ QUEUE* create_tasks_queue(FILE* tasks_file);
 //prints all the queues offset in their priority
 //input: pointer to QUEUE you want to print
 void PrintQueue(QUEUE* queue);
+
+BOOL initalize_queue_mutex(HANDLE* queue_mutex);
+BOOL check_thread_exit(int num_threads, HANDLE* threads_handles, int num_of_lines);
+BOOL  CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,LPVOID p_thread_parameters,LPDWORD p_thread_id, HANDLE* thread_handle);
 
 // Implementation -------------------------------------------------------
 
@@ -72,11 +75,13 @@ int main(int argc, char* argv[]) {
 	lock = InitializeLock();
 	pass_or_fail = initalize_queue_mutex(&queue_mutex);
 	pass_or_fail = Create_Thread_data(tasks_file_name, tasks_queue, lock, queue_mutex, &ptr_to_thread_data);
-	threads_handles = (HANDLE*)malloc(sizeof(HANDLE) * num_of_thread);//creating array of handles in the size of num_threads
+	if(num_of_thread!=0) threads_handles = (HANDLE*)malloc(sizeof(HANDLE) * num_of_thread);//creating array of handles in the size of num_threads
 
+	
 	if (threads_handles == NULL) {//checl if aloocation failed
 		pass_or_fail = FAIL;
 		printf("memory allocation failed\n");
+		return FUNCTION_FAILED;
 	}
 
 	for (int i = 0; i < num_of_thread; i++) {//inital array to NULL for close handles
@@ -88,26 +93,30 @@ int main(int argc, char* argv[]) {
 	if (thread_ids == NULL) {//check if aloocation failed
 		pass_or_fail = FAIL;
 		printf("memory allocation failed\n");
-		
+		return FUNCTION_FAILED;
 	}
-	for (int i = 0; i < num_of_thread; i++) {//inital array to NULL for close handles
-		thread_ids[i] = NULL;
-	}
+
+	//DANIELA: there not need to initial thread ID, it's not used in the future code....?..
+	//for (int i = 0; i < num_of_thread; i++) {//inital array to NULL for close handles
+	//	thread_ids[i] = NULL;
+	//}
 
 	//create_threads
 	for (int i = 0; i < num_of_thread; i++)
 	{
-		pass_or_fail = CreateThreadSimple(ThreadFunction, ptr_to_thread_data, &thread_ids[i],&threads_handles[i]);
+		pass_or_fail = CreateThreadSimple(ThreadFunction, ptr_to_thread_data, &(thread_ids[i]),(threads_handles+i));
 		if (NULL == threads_handles[i])
 		{
 			printf("Error when creating thread: %d\n", GetLastError());
 			pass_or_fail = FAIL;
+			return 1;
 		}
 	}
 
 	pass_or_fail = check_thread_exit(num_of_thread, threads_handles,num_of_lines);
+	
 	for (int i = 0; i < num_of_thread; i++) {
-		pass_or_fail = CloseHandle(threads_handles[i]);
+		if (threads_handles[i] != NULL) pass_or_fail = CloseHandle(threads_handles[i]);
 		if (FALSE == pass_or_fail)
 		{
 			printf("Error when closing thread: %d\n", GetLastError());
@@ -119,7 +128,7 @@ int main(int argc, char* argv[]) {
 	fclose(tasks_priorities_file);//check if the file valid and close file
 
 	end_time = time(NULL);
-	printf("this function ran in %ld seconds\n", end_time - start_time);
+	printf("this function ran in %d seconds\n",(int)(end_time - start_time));
 	return 0;
 }
 
@@ -213,7 +222,7 @@ BOOL  CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 
 BOOL check_thread_exit(int num_threads,HANDLE* threads_handles, int num_of_lines) {
 	DWORD dw_ret = 0;
-	BOOL pass_or_fail;
+	BOOL pass_or_fail = TRUE;
 	DWORD exit_code;
 	BOOL ret_val;
 	int tasks = num_of_lines;//add one for safety
@@ -244,5 +253,5 @@ BOOL check_thread_exit(int num_threads,HANDLE* threads_handles, int num_of_lines
 		}
 
 	}
-
+	return pass_or_fail;
 }

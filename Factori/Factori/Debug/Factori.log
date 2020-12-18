@@ -1,10 +1,2 @@
-﻿  main.c
-C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(73,38): warning C4013: 'initalize_queue_mutex' undefined; assuming extern returning int
-C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(94,23): warning C4047: '=': 'DWORD' differs in levels of indirection from 'void *'
-C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(100,36): warning C4013: 'CreateThreadSimple' undefined; assuming extern returning int
-C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(108,34): warning C4013: 'check_thread_exit' undefined; assuming extern returning int
-C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(122,9): warning C4477: 'printf' : format string '%ld' requires an argument of type 'long', but variadic argument 1 has type 'time_t'
-C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(122,9): message : consider using '%lld' in the format string
-C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(122,9): message : consider using '%I64d' in the format string
-C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(248): warning C4716: 'check_thread_exit': must return a value
-  Factori.vcxproj -> C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Debug\Factori.exe
+﻿  ThreadsFunctions.c
+  Factori.vcxproj -> C:\Users\Surface\source\repos\danielashabat\Factori\Factori\Debug\Factori.exe
