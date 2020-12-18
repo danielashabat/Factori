@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 		return FUNCTION_FAILED;
 	}
 	//***********
-
+	PrintQueue(tasks_queue);
 	lock = InitializeLock();
 	pass_or_fail = initalize_queue_mutex(&queue_mutex);
 	pass_or_fail = Create_Thread_data(tasks_file_name, tasks_queue, lock, queue_mutex, &ptr_to_thread_data);
@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	//Daniela's debug:
-	PrintQueue(tasks_queue);
+	
 	//ThreadFunction(tasks_queue, argv[1]);
 	//end debug
 
@@ -213,7 +213,7 @@ BOOL check_thread_exit(int num_threads,HANDLE* threads_handles) {
 		num_threads,  // number of objects in array
 		threads_handles,     // array of objects
 		TRUE,       // wait for all objects to be signaled
-		20000);       // five-second wait
+		90000);       // five-second wait
 
 	// check for failure 
 	if (dw_ret != WAIT_OBJECT_0) {

@@ -24,8 +24,7 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 	int task_offset;
 	int num;
 	int counter_num_of_factors = 0;
-	int* prime_factor_array = NULL;
-	char* string_to_file = NULL;
+	
 	char tasks_file_name[MAX_PATH];
 	DWORD wait_code;
 	BOOL ret_val;
@@ -52,31 +51,34 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 		pass_or_fail = check_queue_status(queue_mutex_handle, tasks_queue, &task_offset, &queue_is_empty);
 		if (!queue_is_empty) {
 			//Read taske from file
+			int* prime_factor_array = NULL;
+			char* string_to_file = NULL;
 			pass_or_fail = read_lock(lock, 10000);
 			printf("can read file \n");
 			IF_FAILED_END_PROGRAM(pass_or_fail);
 			pass_or_fail = read_num_from_tasks_file(hfile_tasks, &num, task_offset);
 			printf("end read critical section \n");
+			printf("%d num from file\n", num);
 			IF_FAILED_END_PROGRAM(pass_or_fail);
 			pass_or_fail = read_release(lock, 10000);
 			IF_FAILED_END_PROGRAM(pass_or_fail);
 
 			//Analyze the string - not need to be in critical section 
 			IF_FAILED_END_PROGRAM(pass_or_fail)
-				pass_or_fail = find_prime_factors(num, &prime_factor_array, &counter_num_of_factors);
+			pass_or_fail = find_prime_factors(num, &prime_factor_array, &counter_num_of_factors);
 			IF_FAILED_END_PROGRAM(pass_or_fail)
-				pass_or_fail = create_string_to_write(&string_to_file, num, counter_num_of_factors, &prime_factor_array);
+			pass_or_fail = create_string_to_write(&string_to_file, num, counter_num_of_factors, &prime_factor_array);
 			IF_FAILED_END_PROGRAM(pass_or_fail);
 			printf("%s", string_to_file);
 
 
 			//write task to file
-			pass_or_fail = write_lock(lock, 10000);
+			pass_or_fail = write_lock(lock, counter_num_of_factors*10000);
 			IF_FAILED_END_PROGRAM(pass_or_fail);
 			pass_or_fail = write_to_tasks_file(hfile_tasks, string_to_file, num);
 			printf("end file critical section \n");
 			IF_FAILED_END_PROGRAM(pass_or_fail);
-			pass_or_fail = write_release(lock, 10000);
+			pass_or_fail = write_release(lock, counter_num_of_factors*10000);
 
 			IF_FAILED_END_PROGRAM(pass_or_fail);
 
@@ -84,10 +86,10 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 			free(string_to_file);
 
 
-			CloseHandle(hfile_tasks);
+			
 		}
 	}
-	
+	CloseHandle(hfile_tasks);
 	
 	
 	return 0;
