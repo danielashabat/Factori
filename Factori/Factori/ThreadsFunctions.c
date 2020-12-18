@@ -5,7 +5,7 @@
 #include  "Queue.h"
 
 // Defines -------------------------------------------------------------------
-#define TIMEOUT = ((int)5000)
+#define TIMEOUT 5000
 
 // Implementation -------------------------------------------------------
 BOOL Create_Thread_data(char tasks_file_path[], QUEUE* task_queue, Lock* lock,HANDLE queue_mutex, ThreadData** ptr_to_thread_data) {

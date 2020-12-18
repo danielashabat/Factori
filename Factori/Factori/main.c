@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <time.h>
 #include "Queue.h"
 #include "Lock.h"
 #include "ThreadsFunctions.h"
@@ -13,6 +14,8 @@
 #define FUNCTION_FAILED -1
 #define THREAD_SUCCESS ((int)(0))
 #define THREAD_FAIL ((int)(1))
+
+#define TIMEOUT 5000 // 5 seconds is  max time for one task
 
 // Function Declarations -------------------------------------------------------
 
@@ -27,7 +30,7 @@ void PrintQueue(QUEUE* queue);
 
 // Implementation -------------------------------------------------------
 
-//command line: Factori.exe , tasks.txt, TasksPriorities.txt , NumberOfTasks, NumberOfthreads
+//command line: Factori.exe , Tasks.txt, TasksPriorities.txt , NumberOfTasks, NumberOfthreads
 int main(int argc, char* argv[]) {
 	if (argc != 5) {
 		printf("ERROR: there is %d arguments (need to be 5)\n", argc);
@@ -45,6 +48,13 @@ int main(int argc, char* argv[]) {
 	DWORD* thread_ids = NULL; ////pointer to threads ids array
 	ThreadData* ptr_to_thread_data = NULL;
 	char tasks_file_name[MAX_PATH];
+
+
+	//time vars
+	time_t start_time;//in seconds unit
+	time_t end_time;//in seconds unit
+
+	start_time = time(NULL);
 	//read tasks proirities file and create a tasks queue
 	errno_t err = fopen_s(&tasks_priorities_file,argv[2], "r");
 	if (err || tasks_priorities_file == NULL) {
@@ -59,7 +69,6 @@ int main(int argc, char* argv[]) {
 		return FUNCTION_FAILED;
 	}
 	//***********
-	PrintQueue(tasks_queue);
 	lock = InitializeLock();
 	pass_or_fail = initalize_queue_mutex(&queue_mutex);
 	pass_or_fail = Create_Thread_data(tasks_file_name, tasks_queue, lock, queue_mutex, &ptr_to_thread_data);
@@ -96,7 +105,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	pass_or_fail = check_thread_exit(num_of_thread, threads_handles);
+	pass_or_fail = check_thread_exit(num_of_thread, threads_handles,num_of_lines);
 	for (int i = 0; i < num_of_thread; i++) {
 		pass_or_fail = CloseHandle(threads_handles[i]);
 		if (FALSE == pass_or_fail)
@@ -105,14 +114,12 @@ int main(int argc, char* argv[]) {
 			return FALSE ;
 		}
 	}
-	//Daniela's debug:
-	
-	//ThreadFunction(tasks_queue, argv[1]);
-	//end debug
-
 
 	DestroyQueue(tasks_queue,&tasks_queue);//release all the memory that allocates for the queue
 	fclose(tasks_priorities_file);//check if the file valid and close file
+
+	end_time = time(NULL);
+	printf("this function ran in %ld seconds\n", end_time - start_time);
 	return 0;
 }
 
@@ -204,16 +211,18 @@ BOOL  CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 }
 
 
-BOOL check_thread_exit(int num_threads,HANDLE* threads_handles) {
+BOOL check_thread_exit(int num_threads,HANDLE* threads_handles, int num_of_lines) {
 	DWORD dw_ret = 0;
 	BOOL pass_or_fail;
 	DWORD exit_code;
 	BOOL ret_val;
+	int tasks = num_of_lines;//add one for safety
+
 	dw_ret = WaitForMultipleObjects(
 		num_threads,  // number of objects in array
 		threads_handles,     // array of objects
 		TRUE,       // wait for all objects to be signaled
-		90000);       // five-second wait
+		tasks*TIMEOUT);       // five-second wait
 
 	// check for failure 
 	if (dw_ret != WAIT_OBJECT_0) {

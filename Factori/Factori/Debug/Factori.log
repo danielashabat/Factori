@@ -1,17 +1,10 @@
-﻿  ThreadsFunctions.c
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(51,36): warning C4013: 'check_queue_status' undefined; assuming extern returning int
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(68,37): warning C4013: 'find_prime_factors' undefined; assuming extern returning int
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(70,41): warning C4013: 'create_string_to_write' undefined; assuming extern returning int
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(78,66): warning C4047: 'function': 'int' differs in levels of indirection from 'char *'
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(78,66): warning C4024: 'write_to_tasks_file': different types for formal and actual parameter 2
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(78,71): warning C4020: 'write_to_tasks_file': too many actual parameters
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(30,7): warning C4101: 'ret_val': unreferenced local variable
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(29,8): warning C4101: 'wait_code': unreferenced local variable
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(125,76): warning C4028: formal parameter 2 different from declaration
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(125,76): warning C4029: declared formal parameter list different from definition
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(208,18): warning C4013: 'sqrt' undefined; assuming extern returning int
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(293,9): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'int *'
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(273,7): warning C4101: 'pass_or_fail': unreferenced local variable
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(307): warning C4716: 'read_and_write': must return a value
-C:\Users\Anat\source\repos\Factori\Factori\Factori\ThreadsFunctions.c(301): warning C4715: 'check_queue_status': not all control paths return a value
-  Factori.vcxproj -> C:\Users\Anat\source\repos\Factori\Factori\Debug\Factori.exe
+﻿  main.c
+C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(73,38): warning C4013: 'initalize_queue_mutex' undefined; assuming extern returning int
+C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(94,23): warning C4047: '=': 'DWORD' differs in levels of indirection from 'void *'
+C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(100,36): warning C4013: 'CreateThreadSimple' undefined; assuming extern returning int
+C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(108,34): warning C4013: 'check_thread_exit' undefined; assuming extern returning int
+C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(122,9): warning C4477: 'printf' : format string '%ld' requires an argument of type 'long', but variadic argument 1 has type 'time_t'
+C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(122,9): message : consider using '%lld' in the format string
+C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(122,9): message : consider using '%I64d' in the format string
+C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Factori\main.c(248): warning C4716: 'check_thread_exit': must return a value
+  Factori.vcxproj -> C:\Users\meiro\source\repos\danielashabat\Factori\Factori\Debug\Factori.exe
