@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
 			return FALSE ;
 		}
 	}
-
+	Destroy_
 	DestroyQueue(tasks_queue,&tasks_queue);//release all the memory that allocates for the queue
 	fclose(tasks_priorities_file);//check if the file valid and close file
 

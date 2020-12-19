@@ -90,7 +90,7 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 	CloseHandle(hfile_tasks);
 	
 	
-	return 0;
+	return -1;
 }
 
 

@@ -118,3 +118,22 @@ BOOL  write_release(Lock* lock, int time_out) {
 	printf("WRITE release success!\n");
 	return TRUE;
 }
+
+
+BOOL DestroyLock(Lock** lock) {
+	DWORD retval = 1;
+	BOOL pass_or_fail =TRUE;
+	retval = CloseHandle((*lock)->mutex);
+	if (retval == 0) {
+		pass_or_fail = FALSE;
+	}
+	retval = CloseHandle((*lock)->semaphore);
+	if (retval == 0) {
+		pass_or_fail = FALSE;
+	}
+	free(*lock);
+	*lock = NULL;
+
+	if (pass_or_fail) return TRUE;
+	else return FALSE;
+}
