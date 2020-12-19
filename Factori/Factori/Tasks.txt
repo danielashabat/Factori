@@ -2,6 +2,14 @@
 33
 44
 21
+The prime factors of 33 are: 3, 11
+The prime factors of 1 are: 1
+The prime factors of 44 are: 2, 2, 11
+The prime factors of 21 are: 3, 7
+The prime factors of 33 are: 3, 11
+The prime factors of 1 are: 1
+The prime factors of 44 are: 2, 2, 11
+The prime factors of 21 are: 3, 7
 The prime factors of 1 are: 1
 The prime factors of 33 are: 3, 11
 The prime factors of 44 are: 2, 2, 11

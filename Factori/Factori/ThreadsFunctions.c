@@ -134,7 +134,6 @@ BOOL write_to_tasks_file(HANDLE hfile_tasks,char* string_to_file) {
 	
 	SetFilePointer(hfile_tasks,0, NULL, FILE_END);//set pointer to end of file
 	if (NULL != string_to_file) nNumberOfBytesToWrite = strlen(string_to_file);//////need to check length with ANAT
-	printf("size: %d\n", nNumberOfBytesToWrite);
 
 	bErrorFlag = WriteFile(hfile_tasks, string_to_file, nNumberOfBytesToWrite, &lpNumberOfBytesWritten, NULL);
 	IF_FAILED_END_PROGRAM(check_ReadFile_WriteFile(bErrorFlag, nNumberOfBytesToWrite, lpNumberOfBytesWritten))
@@ -287,7 +286,7 @@ BOOL check_queue_status(HANDLE queue_mutex_handle,QUEUE* tasks_queue, int* task_
 	//critical section- check if queue is not empty and pop the mission 
 	if (!Empty(tasks_queue)) {
 		*task_offset = Pop(tasks_queue);
-		printf("%d\n", *task_offset);
+		//printf("%d\n", *task_offset);
 		*queue_is_empty = FALSE;
 	}
 	else {

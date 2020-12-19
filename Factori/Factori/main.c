@@ -1,4 +1,7 @@
-//#define _CRT_SECURE_NO_WARNINGS 
+/*Authors -Daniela Shabat 316415645, Anat Sinai 312578149.
+Project – Factori (exersice 3 in System Operation course)
+Description – in this project the program we practice the mutex/semaphore concepts with threads */
+
 // Includes --------------------------------------------------------------------
 #include <stdio.h>
 #include <stdlib.h>
