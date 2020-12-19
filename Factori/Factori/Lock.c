@@ -120,19 +120,19 @@ BOOL  write_release(Lock* lock, int time_out) {
 }
 
 
-BOOL DestroyLock(Lock** lock) {
+BOOL DestroyLock(Lock* ptr_lock,Lock** ptr_lock_double) {
 	DWORD retval = 1;
 	BOOL pass_or_fail =TRUE;
-	retval = CloseHandle((*lock)->mutex);
+	retval = CloseHandle((ptr_lock)->mutex);
 	if (retval == 0) {
 		pass_or_fail = FALSE;
 	}
-	retval = CloseHandle((*lock)->semaphore);
+	retval = CloseHandle((ptr_lock)->semaphore);
 	if (retval == 0) {
 		pass_or_fail = FALSE;
 	}
-	free(*lock);
-	*lock = NULL;
+	free(ptr_lock);
+	*ptr_lock_double = NULL;
 
 	if (pass_or_fail) return TRUE;
 	else return FALSE;

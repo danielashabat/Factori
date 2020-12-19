@@ -73,15 +73,24 @@ int main(int argc, char* argv[]) {
 	}
 	//***********
 	lock = InitializeLock();
+	if (lock == NULL) {
+		return (close_program_clean(tasks_queue, tasks_priorities_file, pass_or_fail, lock, queue_mutex, threads_handles, thread_ids,
+			ptr_to_thread_data, num_of_thread, FALSE));
+			
+	}
 	pass_or_fail = initalize_queue_mutex(&queue_mutex);
+	if (!pass_or_fail) return (close_program_clean(tasks_queue, tasks_priorities_file, pass_or_fail, lock, queue_mutex, threads_handles, thread_ids,
+		ptr_to_thread_data, num_of_thread, pass_or_fail));
 	pass_or_fail = Create_Thread_data(tasks_file_name, tasks_queue, lock, queue_mutex, &ptr_to_thread_data);
+	if (!pass_or_fail) return (close_program_clean(tasks_queue, tasks_priorities_file, pass_or_fail, lock, queue_mutex, threads_handles, thread_ids,
+		ptr_to_thread_data, num_of_thread, pass_or_fail));
 	if(num_of_thread!=0) threads_handles = (HANDLE*)malloc(sizeof(HANDLE) * num_of_thread);//creating array of handles in the size of num_threads
 
 	
 	if (threads_handles == NULL) {//checl if aloocation failed
 		pass_or_fail = FAIL;
-		printf("memory allocation failed\n");
-		return FUNCTION_FAILED;
+		if (!pass_or_fail) return (close_program_clean(tasks_queue, tasks_priorities_file, pass_or_fail, lock, queue_mutex, threads_handles, thread_ids,
+			ptr_to_thread_data, num_of_thread, pass_or_fail));
 	}
 
 	for (int i = 0; i < num_of_thread; i++) {//inital array to NULL for close handles
@@ -93,13 +102,11 @@ int main(int argc, char* argv[]) {
 	if (thread_ids == NULL) {//check if aloocation failed
 		pass_or_fail = FAIL;
 		printf("memory allocation failed\n");
-		return FUNCTION_FAILED;
+		if (!pass_or_fail) return (close_program_clean(tasks_queue, tasks_priorities_file, pass_or_fail, lock, queue_mutex, threads_handles, thread_ids,
+			ptr_to_thread_data, num_of_thread, pass_or_fail));
 	}
 
-	//DANIELA: there not need to initial thread ID, it's not used in the future code....?..
-	//for (int i = 0; i < num_of_thread; i++) {//inital array to NULL for close handles
-	//	thread_ids[i] = NULL;
-	//}
+	
 
 	//create_threads
 	for (int i = 0; i < num_of_thread; i++)
@@ -109,28 +116,68 @@ int main(int argc, char* argv[]) {
 		{
 			printf("Error when creating thread: %d\n", GetLastError());
 			pass_or_fail = FAIL;
-			return 1;
+			if (!pass_or_fail) return (close_program_clean(tasks_queue, tasks_priorities_file, pass_or_fail, lock, queue_mutex, threads_handles, thread_ids,
+				ptr_to_thread_data, num_of_thread, pass_or_fail));
 		}
 	}
 
 	pass_or_fail = check_thread_exit(num_of_thread, threads_handles,num_of_lines);
+	if (!pass_or_fail) return (close_program_clean(tasks_queue, tasks_priorities_file, pass_or_fail, lock, queue_mutex, threads_handles, thread_ids,
+		ptr_to_thread_data, num_of_thread, pass_or_fail));
 	
+	end_time = time(NULL);
+	printf("this function ran in %d seconds\n", (int)(end_time - start_time));
+	return (close_program_clean(tasks_queue, tasks_priorities_file, pass_or_fail, lock, queue_mutex, threads_handles, thread_ids,
+		ptr_to_thread_data, num_of_thread, pass_or_fail));
+	
+	
+}
+
+BOOL close_program_clean(QUEUE* tasks_queue,
+		FILE* tasks_priorities_file,
+		BOOL pass_or_fail ,
+		Lock* lock ,
+		HANDLE queue_mutex ,
+		HANDLE* threads_handles, 
+		DWORD* thread_ids, 
+		ThreadData* ptr_to_thread_data,int num_of_thread ){
+	DWORD retval = 1;
+	BOOL pass_or_fail_clean_program= TRUE;
+	BOOL queue_mutex_free_flag = FALSE;
+	//close all thread handles
 	for (int i = 0; i < num_of_thread; i++) {
-		if (threads_handles[i] != NULL) pass_or_fail = CloseHandle(threads_handles[i]);
-		if (FALSE == pass_or_fail)
+		if (threads_handles[i] != NULL) retval = CloseHandle(threads_handles[i]);
+		if (0 == retval)
 		{
 			printf("Error when closing thread: %d\n", GetLastError());
-			return FALSE ;
+			pass_or_fail_clean_program = FALSE;
 		}
 	}
-	Destroy_
-	DestroyQueue(tasks_queue,&tasks_queue);//release all the memory that allocates for the queue
-	fclose(tasks_priorities_file);//check if the file valid and close file
+	
+	if (thread_ids != NULL) free(thread_ids);
 
-	end_time = time(NULL);
-	printf("this function ran in %d seconds\n",(int)(end_time - start_time));
-	return 0;
+	if (lock != NULL)  pass_or_fail_clean_program = DestroyLock(lock, &lock);
+
+	if (tasks_queue != NULL)  DestroyQueue(tasks_queue, &tasks_queue);
+
+	if (queue_mutex != NULL) {
+		free(queue_mutex);
+		queue_mutex_free_flag = TRUE;
+	}
+	
+	if (tasks_queue == NULL && lock == NULL && queue_mutex_free_flag == TRUE && ptr_to_thread_data!= NULL) {
+		free(ptr_to_thread_data);
+	}
+	fclose(tasks_priorities_file);
+	
+	if (!pass_or_fail_clean_program || !pass_or_fail) return FUNCTION_FAILED;
+	else return 0; 
+
 }
+
+
+
+
 
 QUEUE* create_tasks_queue(FILE* tasks_file) {
 	QUEUE* tasks_queue = NULL;
