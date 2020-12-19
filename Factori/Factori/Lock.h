@@ -61,4 +61,4 @@ BOOL  write_release(Lock* lock, int time_out);
 /* input: ptr to lock
 return values : if TRUE the function succeed to destroy the lock ,
 if FALSE the function occured an error and failed */
-BOOL DestroyLock(Lock** lock);
+BOOL DestroyLock(Lock* ptr_lock, Lock** ptr_lock_double);

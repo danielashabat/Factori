@@ -42,5 +42,5 @@ BOOL create_string_to_write(char** string, int num, int num_of_factors, int** fa
 //functions for handling errors:
 BOOL check_file_handle(HANDLE h_file, char* file_name);
 BOOL check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_write, DWORD lpNumberOfBytesRead_or_Written);
-
+int error_close_thread_handles(int* prime_factor_array, char* string_to_file, HANDLE hfile);
 #endif

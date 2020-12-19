@@ -56,31 +56,31 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 			char* string_to_file = NULL;
 			pass_or_fail = read_lock(lock, 10000);
 			printf("can read file \n");
-			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
+			if (!pass_or_fail) return(error_close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 			pass_or_fail = read_num_from_tasks_file(hfile_tasks, &num, task_offset);
 			printf("end read critical section \n");
 			printf("%d num from file\n", num);
-			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
+			if (!pass_or_fail) return(error_close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 			pass_or_fail = read_release(lock, 10000);
-			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
+			if (!pass_or_fail) return(error_close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 
 			//Analyze the string - not need to be in critical section 
 			
 			pass_or_fail = find_prime_factors(num, &prime_factor_array, &counter_num_of_factors);
-			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
+			if (!pass_or_fail) return(error_close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 			pass_or_fail = create_string_to_write(&string_to_file, num, counter_num_of_factors, &prime_factor_array);
-			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
+			if (!pass_or_fail) return(error_close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 			printf("%s", string_to_file);
 
 
 			//write task to file
-			pass_or_fail = write_lock(lock, counter_num_of_factors*10000);
-			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
+			pass_or_fail = write_lock(lock, 10000);
+			if (!pass_or_fail) return(error_close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 			pass_or_fail = write_to_tasks_file(hfile_tasks, string_to_file);
 			printf("end file critical section \n");
-			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
-			pass_or_fail = write_release(lock, counter_num_of_factors*10000);
-			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
+			if (!pass_or_fail) return(error_close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
+			pass_or_fail = write_release(lock,10000);
+			if (!pass_or_fail) return(error_close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 
 			free(prime_factor_array);
 			free(string_to_file);
@@ -194,32 +194,39 @@ BOOL  find_prime_factors(int num, int** prime_factor_array, int* counter_num_of_
 	if (p_prime_factors == NULL) {
 		return FALSE;
 	}
-	while (num % 2 == 0) {
-		if (p_prime_factors == NULL) {
-			return FALSE;
-		}
-		p_prime_factors[counter] = 2;
-		num = (num / 2);
+	if (num == 1) {
+		p_prime_factors[counter] = 1;
 		counter++;
-		if (NULL !=p_prime_factors) temp = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
-		if (NULL != temp) p_prime_factors = temp; else return FALSE;
-
 	}
-
-	while (i <= sqrt(num)) {
-		while (num % i == 0) {///divide in zero ERROR
-			p_prime_factors[counter] = i;
-			num = (num / i);
+	else {
+		while (num % 2 == 0) {
+			if (p_prime_factors == NULL) {
+				return FALSE;
+			}
+			p_prime_factors[counter] = 2;
+			num = (num / 2);
 			counter++;
-			if (NULL != p_prime_factors)  temp = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
+			if (NULL != p_prime_factors) temp = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
 			if (NULL != temp) p_prime_factors = temp; else return FALSE;
-		}
-		i = i + 2;
-	}
-	if (num > 2) {
 
-		(p_prime_factors)[counter] = num;
-		counter++;
+		}
+
+		while (i <= sqrt(num)) {
+			while (num % i == 0) {///divide in zero ERROR
+				p_prime_factors[counter] = i;
+				num = (num / i);
+				counter++;
+				if (NULL != p_prime_factors)  temp = (int*)realloc(p_prime_factors, (counter + 1) * sizeof(int));
+				if (NULL != temp) p_prime_factors = temp; else return FALSE;
+			}
+			i = i + 2;
+		}
+		if (num > 2) {
+
+			(p_prime_factors)[counter] = num;
+			counter++;
+		}
+		
 	}
 	*counter_num_of_factors = counter;
 	*prime_factor_array = p_prime_factors;
@@ -298,12 +305,12 @@ BOOL check_queue_status(HANDLE queue_mutex_handle,QUEUE* tasks_queue, int* task_
 	return TRUE;
 
 }
-int close_thread_handles(int* prime_factor_array, char* string_to_file, HANDLE hfile) {
-	DWORD retval = 1;
+int error_close_thread_handles(int* prime_factor_array, char* string_to_file, HANDLE hfile) {
+	
 	if (prime_factor_array != NULL) free(prime_factor_array);
 	if (string_to_file != NULL) free(string_to_file);
-	retval = CloseHandle(hfile);
-	if (retval ==0 ) return -1;
-	else return 0;
+	CloseHandle(hfile);
+	return -1;
+	
 }
 
