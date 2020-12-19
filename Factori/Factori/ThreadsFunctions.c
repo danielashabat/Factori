@@ -5,7 +5,7 @@
 #include  "Queue.h"
 
 // Defines -------------------------------------------------------------------
-#define TIMEOUT 5000
+
 
 // Implementation -------------------------------------------------------
 BOOL Create_Thread_data(char tasks_file_path[], QUEUE* task_queue, Lock* lock,HANDLE queue_mutex, ThreadData** ptr_to_thread_data) {
@@ -36,7 +36,8 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 	BOOL start_read_and_write = FALSE;
 	HANDLE hfile_tasks = NULL;
 	BOOL pass_or_fail = FALSE;
-
+	int* prime_factor_array = NULL;
+	char* string_to_file = NULL;
 	ThreadData* p_params;
 	p_params = (ThreadData*)lpParam;
 	strcpy_s(tasks_file_name, MAX_PATH, p_params->input_path);
@@ -46,17 +47,17 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 
 	//create new handle to tasks file in read and write mode 
 	hfile_tasks= CreateFileA((LPCSTR)tasks_file_name, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	IF_FAILED_END_PROGRAM(check_file_handle(hfile_tasks, tasks_file_name));//check for failure
-
+	if (!check_file_handle(hfile_tasks, tasks_file_name)) {//check for failure
+		return(error_close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
+	}
 	while (!queue_is_empty) {
 		pass_or_fail = check_queue_status(queue_mutex_handle, tasks_queue, &task_offset, &queue_is_empty);
+		if (!pass_or_fail)  return(error_close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 		if (!queue_is_empty) {
 			//Read taske from file
-			int* prime_factor_array = NULL;
-			char* string_to_file = NULL;
 			pass_or_fail = read_lock(lock, 10000);
-			printf("can read file \n");
 			if (!pass_or_fail) return(error_close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
+			printf("can read file \n");
 			pass_or_fail = read_num_from_tasks_file(hfile_tasks, &num, task_offset);
 			printf("end read critical section \n");
 			printf("%d num from file\n", num);
@@ -212,7 +213,7 @@ BOOL  find_prime_factors(int num, int** prime_factor_array, int* counter_num_of_
 		}
 
 		while (i <= sqrt(num)) {
-			while (num % i == 0) {///divide in zero ERROR
+			while (num % i == 0) {
 				p_prime_factors[counter] = i;
 				num = (num / i);
 				counter++;

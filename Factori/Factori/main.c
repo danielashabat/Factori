@@ -79,16 +79,16 @@ int main(int argc, char* argv[]) {
 	}
 	PrintQueue(tasks_queue);
 	//***********
-	lock = InitializeLock();
+	lock = InitializeLock();//initial the lock ptr
 	if (lock == NULL) {
 		return (close_program_clean(tasks_queue, tasks_priorities_file, lock, queue_mutex, threads_handles, thread_ids,
 			ptr_to_thread_data, num_of_thread, FALSE));
 			
 	}
-	pass_or_fail = initalize_queue_mutex(&queue_mutex);
+	pass_or_fail = initalize_queue_mutex(&queue_mutex);//initial the queue mutex 
 	if (!pass_or_fail) return (close_program_clean(tasks_queue, tasks_priorities_file,  lock, queue_mutex, threads_handles, thread_ids,
 		ptr_to_thread_data, num_of_thread, pass_or_fail));
-	pass_or_fail = Create_Thread_data(tasks_file_name, tasks_queue, lock, queue_mutex, &ptr_to_thread_data);
+	pass_or_fail = Create_Thread_data(tasks_file_name, tasks_queue, lock, queue_mutex, &ptr_to_thread_data);//create the pinter that we give to the thread
 	if (!pass_or_fail) return (close_program_clean(tasks_queue, tasks_priorities_file,  lock, queue_mutex, threads_handles, thread_ids,
 		ptr_to_thread_data, num_of_thread, pass_or_fail));
 	if(num_of_thread!=0) threads_handles = (HANDLE*)malloc(sizeof(HANDLE) * num_of_thread);//creating array of handles in the size of num_threads
@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
 				ptr_to_thread_data, num_of_thread, pass_or_fail));
 		}
 	}
-
+	//wait for the last thread to finish and check that the return value is as expected
 	pass_or_fail = check_thread_exit(num_of_thread, threads_handles,num_of_lines);
 	if (!pass_or_fail) return (close_program_clean(tasks_queue, tasks_priorities_file, lock, queue_mutex, threads_handles, thread_ids,
 		ptr_to_thread_data, num_of_thread, pass_or_fail));
@@ -283,7 +283,7 @@ BOOL check_thread_exit(int num_threads,HANDLE* threads_handles, int num_of_lines
 		num_threads,  // number of objects in array
 		threads_handles,     // array of objects
 		TRUE,       // wait for all objects to be signaled
-		tasks*TIMEOUT);       // five-second wait
+		tasks*TIMEOUT);       
 
 	// check for failure 
 	if (dw_ret != WAIT_OBJECT_0) {
