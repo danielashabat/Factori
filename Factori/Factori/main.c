@@ -12,7 +12,7 @@
 
 #define FUNCTION_FAILED -1
 #define THREAD_SUCCESS ((int)(0))
-#define THREAD_FAIL ((int)(1))
+#define THREAD_FAIL ((int)(-1))
 
 #define TIMEOUT 5000 // 5 seconds is  max time for one task
 

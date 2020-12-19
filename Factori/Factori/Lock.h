@@ -56,3 +56,9 @@ return values : if TRUE the function succeed releasing the lock ,
 if FALSE the function occured an error and failed */
 BOOL  write_release(Lock* lock, int time_out);
 #endif 
+
+/* this function close all handles and free malloc*
+/* input: ptr to lock
+return values : if TRUE the function succeed to destroy the lock ,
+if FALSE the function occured an error and failed */
+BOOL DestroyLock(Lock** lock);

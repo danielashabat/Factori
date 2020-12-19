@@ -21,14 +21,17 @@ BOOL Create_Thread_data(char tasks_file_path[], QUEUE* task_queue, Lock* lock,HA
 	return TRUE;
 }
 DWORD WINAPI ThreadFunction(LPVOID lpParam) {
+	DWORD retval = 1;
 	int task_offset=0;
 	int num;
 	int counter_num_of_factors = 0;
 	
+	// parmters to use by lpParam
 	char tasks_file_name[MAX_PATH];
 	HANDLE queue_mutex_handle = NULL;
 	QUEUE* tasks_queue = NULL;
 	Lock* lock = NULL;
+
 	BOOL queue_is_empty = FALSE; 
 	BOOL start_read_and_write = FALSE;
 	HANDLE hfile_tasks = NULL;
@@ -53,32 +56,31 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 			char* string_to_file = NULL;
 			pass_or_fail = read_lock(lock, 10000);
 			printf("can read file \n");
-			IF_FAILED_END_PROGRAM(pass_or_fail);
+			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 			pass_or_fail = read_num_from_tasks_file(hfile_tasks, &num, task_offset);
 			printf("end read critical section \n");
 			printf("%d num from file\n", num);
-			IF_FAILED_END_PROGRAM(pass_or_fail);
+			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 			pass_or_fail = read_release(lock, 10000);
-			IF_FAILED_END_PROGRAM(pass_or_fail);
+			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 
 			//Analyze the string - not need to be in critical section 
-			IF_FAILED_END_PROGRAM(pass_or_fail)
+			
 			pass_or_fail = find_prime_factors(num, &prime_factor_array, &counter_num_of_factors);
-			IF_FAILED_END_PROGRAM(pass_or_fail)
+			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 			pass_or_fail = create_string_to_write(&string_to_file, num, counter_num_of_factors, &prime_factor_array);
-			IF_FAILED_END_PROGRAM(pass_or_fail);
+			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 			printf("%s", string_to_file);
 
 
 			//write task to file
 			pass_or_fail = write_lock(lock, counter_num_of_factors*10000);
-			IF_FAILED_END_PROGRAM(pass_or_fail);
+			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 			pass_or_fail = write_to_tasks_file(hfile_tasks, string_to_file);
 			printf("end file critical section \n");
-			IF_FAILED_END_PROGRAM(pass_or_fail);
+			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 			pass_or_fail = write_release(lock, counter_num_of_factors*10000);
-
-			IF_FAILED_END_PROGRAM(pass_or_fail);
+			if (!pass_or_fail) return(close_thread_handles(prime_factor_array, string_to_file, hfile_tasks));
 
 			free(prime_factor_array);
 			free(string_to_file);
@@ -87,10 +89,11 @@ DWORD WINAPI ThreadFunction(LPVOID lpParam) {
 			
 		}
 	}
-	CloseHandle(hfile_tasks);
 	
+	retval = CloseHandle(hfile_tasks);
+	if (retval == 0) return -1;
+	else return 0;
 	
-	return -1;
 }
 
 
@@ -295,9 +298,12 @@ BOOL check_queue_status(HANDLE queue_mutex_handle,QUEUE* tasks_queue, int* task_
 	return TRUE;
 
 }
+int close_thread_handles(int* prime_factor_array, char* string_to_file, HANDLE hfile) {
+	DWORD retval = 1;
+	if (prime_factor_array != NULL) free(prime_factor_array);
+	if (string_to_file != NULL) free(string_to_file);
+	retval = CloseHandle(hfile);
+	if (retval ==0 ) return -1;
+	else return 0;
+}
 
-//BOOL read_and_write() {
-//
-//
-//
-//}
